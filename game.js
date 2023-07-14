@@ -57,7 +57,7 @@ function init() {
         y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
         width: enemyWidth,
         height: enemyHeight,
-        color: "#ff0000",
+        color: "#00ffff",
         isAlive: true
       };
       enemies.push(enemy);
@@ -186,14 +186,6 @@ function init() {
       }
 
       updateEnemies();
-
-      // Check if the player has reached the score of 50
-      if (score >= 50) {
-        gameOver = true;
-        enemies.forEach((enemy) => {
-          enemy.isAlive = false;
-        });
-      }
     }
 
     // Clear the canvas
@@ -212,6 +204,7 @@ function init() {
     // Draw enemies
     enemies.forEach((enemy) => {
       if (enemy.isAlive) {
+        // Draw enemy shape
         context.fillStyle = enemy.color;
         context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
       }
