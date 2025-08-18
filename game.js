@@ -1,4 +1,7 @@
 
+let animationId;
+
+
 import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
@@ -71,6 +74,7 @@ function showLeaderboard() {
 function hideLeaderboard() {
   document.getElementById("leaderboardOverlay").classList.add("hidden");
 }
+
 
 // Game initialization
 function init() {
@@ -395,6 +399,8 @@ function init() {
           this.gameHeight / 2
         );
       }
+      document.getElementById("gameOverOverlay").style.display = "flex";
+      return;
     }
   }
 
@@ -402,6 +408,7 @@ function init() {
     this.update();
     this.draw();
     requestAnimationFrame(() => this.gameLoop());
+
   }
 
   start() {
@@ -409,6 +416,29 @@ function init() {
   }
 }
 
+
+function startGame() {
+  document.getElementById("startOverlay").style.display = "none";
+  document.getElementById("gameOverOverlay").style.display = "none";
+  cancelAnimationFrame(animationId);
+  init();
+}
+
+function resetGame() {
+  document.getElementById("gameOverOverlay").style.display = "none";
+  cancelAnimationFrame(animationId);
+  init();
+}
+
+// Attach button handlers after page load
+window.onload = function () {
+  document
+    .getElementById("startButton")
+    .addEventListener("click", startGame);
+  document
+    .getElementById("restartButton")
+    .addEventListener("click", resetGame);
+=======
 window.onload = function () {
   document.getElementById("startButton").addEventListener("click", () => {
     document.getElementById("startScreen").classList.add("hidden");
@@ -421,5 +451,7 @@ window.onload = function () {
     .getElementById("closeLeaderboard")
     .addEventListener("click", hideLeaderboard);
   updateLeaderboard();
+
+  
 };
 

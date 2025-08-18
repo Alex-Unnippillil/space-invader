@@ -6,7 +6,9 @@ body {
     overflow: hidden;
 }
 
+
 #game-container {
+
     position: relative;
     width: 800px;
     height: 600px;
@@ -27,7 +29,9 @@ canvas {
     display: block;
 }
 
+
 #overlays .overlay {
+
     position: absolute;
     top: 0;
     left: 0;
@@ -39,6 +43,12 @@ canvas {
     align-items: center;
     background: rgba(0, 0, 0, 0.8);
     color: #ffffff;
+
+}
+
+#gameOverOverlay {
+    display: none;
+=======
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease;
@@ -114,4 +124,6 @@ canvas {
     font-size: 48px;
     text-align: center;
     z-index: 1;
+
+  
 }
