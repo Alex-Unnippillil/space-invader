@@ -81,6 +81,8 @@ function init() {
   // Set up the canvas and rendering context
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
+  const bgCanvas = document.getElementById("bgCanvas");
+  const starfield = new Starfield(bgCanvas);
 
   const styles = getComputedStyle(document.documentElement);
   const COLOR_PRIMARY = styles.getPropertyValue("--color-primary").trim();
@@ -527,6 +529,9 @@ function init() {
 
   // Game loop
   function gameLoop() {
+    starfield.update();
+    starfield.draw();
+=======
     if (isPaused) {
       requestAnimationFrame(gameLoop);
       return;
