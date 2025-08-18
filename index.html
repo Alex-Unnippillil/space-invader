@@ -7,11 +7,19 @@
 <body>
 
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script type="module">
+      import Game from './game.js';
+      const game = new Game();
+      game.start();
+    </script>
+
     <div id="pauseOverlay">
         <h1>Paused</h1>
         <p>Press P to resume</p>
     </div>
 
     <script src="game.js"></script>
+
 </body>
 </html>

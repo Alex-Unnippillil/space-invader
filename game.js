@@ -1,3 +1,49 @@
+
+import Player from './player.js';
+import Bullet from './bullet.js';
+import Enemy from './enemy.js';
+
+export default class Game {
+  constructor() {
+    this.canvas = document.getElementById('gameCanvas');
+    this.context = this.canvas.getContext('2d');
+
+    // Game constants
+    this.gameWidth = this.canvas.width;
+    this.gameHeight = this.canvas.height;
+    this.playerWidth = 40;
+    this.playerHeight = 30;
+    this.playerSpeed = 5;
+    this.bulletWidth = 5;
+    this.bulletHeight = 15;
+    this.bulletSpeed = 7;
+    this.enemyWidth = 30;
+    this.enemyHeight = 30;
+    this.enemyRowCount = 5;
+    this.enemyColumnCount = 10;
+    this.enemyPadding = 10;
+    this.enemyOffsetTop = 50;
+    this.enemyOffsetLeft = 50;
+    this.gameOverText = 'Game Over';
+    this.scoreText = 'Score: ';
+
+    // Entities
+    this.player = new Player(
+      this.gameWidth / 2 - this.playerWidth / 2,
+      this.gameHeight - this.playerHeight - 10,
+      this.playerWidth,
+      this.playerHeight,
+      this.playerSpeed,
+      '#00ff00'
+    );
+
+    this.bullet = new Bullet(
+      this.bulletWidth,
+      this.bulletHeight,
+      this.bulletSpeed,
+      '#ff0000'
+    );
+
 function saveScore(name, score) {
   const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
   data.push({ name, score });
@@ -64,52 +110,47 @@ function init() {
   const gameOverText = "Game Over";
   const scoreText = "Score: ";
 
-  // Player object
-  const player = {
-    x: gameWidth / 2 - playerWidth / 2,
-    y: gameHeight - playerHeight - 10,
-    width: playerWidth,
-    height: playerHeight,
-    color: "#00ff00",
-    isMovingLeft: false,
-    isMovingRight: false
-  };
 
-  // Bullet object
-  const bullet = {
-    x: 0,
-    y: 0,
-    width: bulletWidth,
-    height: bulletHeight,
-    color: "#ff0000",
-    isFired: false
-  };
+    this.enemies = [];
+    this.enemySpeed = 1;
+    this.enemyDirection = 1;
 
-  // Enemy objects
-  const enemies = [];
-  const enemySpeed = 1; // Speed of enemy movement
-  let enemyDirection = 1; // Direction of enemy movement
-  let enemyMoveDown = false; // Flag to indicate whether enemies should move down
-
-  for (let row = 0; row < enemyRowCount; row++) {
-    for (let col = 0; col < enemyColumnCount; col++) {
-      const enemy = {
-        x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
-        y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
-        width: enemyWidth,
-        height: enemyHeight,
-        color: "#00ffff",
-        isAlive: true
-      };
-      enemies.push(enemy);
+    for (let row = 0; row < this.enemyRowCount; row++) {
+      for (let col = 0; col < this.enemyColumnCount; col++) {
+        const x =
+          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
+        const y =
+          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
+        this.enemies.push(
+          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
+        );
+      }
     }
+
+    // Game variables
+    this.gameOver = false;
+    this.score = 0;
+
+    // Event listeners
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleSpacebar = this.handleSpacebar.bind(this);
+
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+    document.addEventListener('keydown', this.handleSpacebar);
   }
+
+  handleKeyDown(event) {
+    if (event.key === 'ArrowLeft') {
+      this.player.moveLeft();
+    } else if (event.key === 'ArrowRight') {
+      this.player.moveRight();
 
   // Game variables
   let gameOver = false;
   let score = 0;
   let isPaused = false;
-=======
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
@@ -117,7 +158,7 @@ function init() {
 
   document.addEventListener("keydown", handleSpacebar);
   document.addEventListener("keydown", handlePause);
-=======
+
 
 
   startButton.addEventListener("click", startGame);
@@ -186,26 +227,34 @@ function init() {
       resumeGame();
     } else if (gameState === "upgrade" && event.key === "u") {
       hideUpgrade();
+
     }
   }
 
-  function handleKeyUp(event) {
-    if (event.key === "ArrowLeft") {
-      player.isMovingLeft = false;
-    } else if (event.key === "ArrowRight") {
-      player.isMovingRight = false;
+  handleKeyUp(event) {
+    if (event.key === 'ArrowLeft') {
+      this.player.stopLeft();
+    } else if (event.key === 'ArrowRight') {
+      this.player.stopRight();
     }
   }
+
+  handleSpacebar(event) {
+    if (event.key === ' ' && !this.bullet.isFired) {
+      this.bullet.fire(
+        this.player.x + this.player.width / 2,
+        this.player.y
+      );
 
   function handlePause(event) {
     if (event.key === "p" || event.key === "P") {
       isPaused = !isPaused;
       pauseOverlay.style.display = isPaused ? "flex" : "none";
+
     }
   }
 
-  // Check collision between two objects
-  function checkCollision(obj1, obj2) {
+  checkCollision(obj1, obj2) {
     return (
       obj1.x < obj2.x + obj2.width &&
       obj1.x + obj1.width > obj2.x &&
@@ -214,62 +263,54 @@ function init() {
     );
   }
 
-  // Play sound effect
-  function playSound(soundSrc) {
+  playSound(soundSrc) {
     const sound = new Audio(soundSrc);
     sound.play();
   }
 
-  // Update enemy positions and check collision with player and bullet
-  function updateEnemies() {
+  updateEnemies() {
     let wallHit = false;
     let moveEnemiesDown = false;
 
-    enemies.forEach((enemy) => {
+    this.enemies.forEach((enemy) => {
       if (enemy.isAlive) {
-        enemy.x += enemyDirection * enemySpeed;
+        enemy.update(this.enemyDirection, this.enemySpeed);
 
-        // Check collision with player
-        if (checkCollision(player, enemy)) {
-          gameOver = true;
+        if (this.checkCollision(this.player, enemy)) {
+          this.gameOver = true;
         }
 
-        // Check collision with bullet
-        if (bullet.isFired && checkCollision(bullet, enemy)) {
+        if (this.bullet.isFired && this.checkCollision(this.bullet, enemy)) {
           enemy.isAlive = false;
-          bullet.isFired = false;
-          score++;
-          playSound("explosion.wav");
+          this.bullet.isFired = false;
+          this.score++;
+          this.playSound('explosion.wav');
         }
 
-        // Check if enemies hit the wall
-        if (
-          enemy.x <= 0 ||
-          enemy.x + enemy.width >= gameWidth
-        ) {
+        if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
           wallHit = true;
         }
 
-        // Check if enemies should move down
-        if (enemy.y + enemy.height >= gameHeight) {
+        if (enemy.y + enemy.height >= this.gameHeight) {
           moveEnemiesDown = true;
         }
       }
     });
 
-    // Move enemies down if they hit the wall
     if (wallHit) {
-      enemyDirection *= -1; // Reverse the direction
-      enemies.forEach((enemy) => {
-        enemy.y += enemy.height;
-      });
+      this.enemyDirection *= -1;
+      this.enemies.forEach((enemy) => enemy.moveDown(enemy.height));
     }
 
-    // Move enemies down if any enemy reached the bottom
     if (moveEnemiesDown) {
-      enemies.forEach((enemy) => {
-        enemy.y += enemy.height;
-      });
+      this.enemies.forEach((enemy) => enemy.moveDown(enemy.height));
+    }
+  }
+{
+    if (!this.gameOver) {
+      this.player.update(this.gameWidth);
+      this.bullet.update();
+      this.updateEnemies();
     }
   }
 
@@ -302,32 +343,25 @@ function init() {
         }, 0);
       }
 
-    // Clear the canvas
-    context.clearRect(0, 0, gameWidth, gameHeight);
 
-    // Draw player
-    context.fillStyle = player.color;
-    context.fillRect(player.x, player.y, player.width, player.height);
+  draw() {
+    this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
-    // Draw bullet
-    if (bullet.isFired) {
-      context.fillStyle = bullet.color;
-      context.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-    }
+    this.player.draw(this.context);
+    this.bullet.draw(this.context);
+    this.enemies.forEach((enemy) => enemy.draw(this.context));
 
-    // Draw enemies
-    enemies.forEach((enemy) => {
-      if (enemy.isAlive) {
-        // Draw enemy shape
-        context.fillStyle = enemy.color;
-        context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-      }
-    });
+    this.context.fillStyle = '#ffffff';
+    this.context.font = '20px Arial';
+    this.context.fillText(this.scoreText + this.score, 10, 30);
 
-    // Draw score
-    context.fillStyle = "#ffffff";
-    context.font = "20px Arial";
-    context.fillText(scoreText + score, 10, 30);
+    if (this.gameOver) {
+      this.context.fillStyle = '#ff0000';
+      this.context.font = '50px Arial';
+      const gameOverTextWidth = this.context.measureText(this.gameOverText).width;
+      if (this.score >= 50) {
+        const congratulatoryText = 'Congratulations!';
+        const congratulatoryTextWidth = this.context.measureText(
 
     if (gameOver && gameState !== "gameOver") {
       showGameOver();
@@ -341,33 +375,38 @@ function init() {
       if (score >= 50) {
         const congratulatoryText = "Congratulations!";
         const congratulatoryTextWidth = context.measureText(
+
           congratulatoryText
         ).width;
-        context.fillText(
+        this.context.fillText(
           congratulatoryText,
-          gameWidth / 2 - congratulatoryTextWidth / 2,
-          gameHeight / 2 - 50
+          this.gameWidth / 2 - congratulatoryTextWidth / 2,
+          this.gameHeight / 2 - 50
         );
-        context.fillText(
-          gameOverText,
-          gameWidth / 2 - gameOverTextWidth / 2,
-          gameHeight / 2 + 50
+        this.context.fillText(
+          this.gameOverText,
+          this.gameWidth / 2 - gameOverTextWidth / 2,
+          this.gameHeight / 2 + 50
         );
       } else {
-        context.fillText(
-          gameOverText,
-          gameWidth / 2 - gameOverTextWidth / 2,
-          gameHeight / 2
+        this.context.fillText(
+          this.gameOverText,
+          this.gameWidth / 2 - gameOverTextWidth / 2,
+          this.gameHeight / 2
         );
       }
     }
-
-    // Request next animation frame
-    requestAnimationFrame(gameLoop);
   }
 
-  // Start the game loop
-  gameLoop();
+  gameLoop() {
+    this.update();
+    this.draw();
+    requestAnimationFrame(() => this.gameLoop());
+  }
+
+  start() {
+    this.gameLoop();
+  }
 }
 
 window.onload = function () {
