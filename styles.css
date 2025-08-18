@@ -25,6 +25,8 @@ canvas {
 
 #gameCanvas {
     z-index: 1;
+    width: 100vw;
+    height: 100vh;
 }
 
 /* Overlay */
@@ -51,6 +53,14 @@ canvas {
 .overlay.show {
     opacity: 1;
     visibility: visible;
+}
+
+#gameOverOverlay {
+    display: none;
+}
+
+#gameOverOverlay.show {
+    display: flex;
 }
 
 .overlay.slide {
