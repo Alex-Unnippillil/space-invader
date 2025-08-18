@@ -4,9 +4,13 @@ function init() {
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
 
+  // Set canvas size to match the window
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
   // Define game constants
-  const gameWidth = canvas.width;
-  const gameHeight = canvas.height;
+  let gameWidth = canvas.width;
+  let gameHeight = canvas.height;
   const playerWidth = 40;
   const playerHeight = 30;
   const playerSpeed = 5;
@@ -72,6 +76,7 @@ function init() {
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
   document.addEventListener("keydown", handleSpacebar);
+  window.addEventListener("resize", handleResize);
 
   function handleKeyDown(event) {
     if (event.key === "ArrowLeft") {
@@ -96,6 +101,17 @@ function init() {
         bullet.x = player.x + player.width / 2 - bullet.width / 2;
         bullet.y = player.y - bullet.height;
       }
+    }
+  }
+
+  function handleResize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    gameWidth = canvas.width;
+    gameHeight = canvas.height;
+    player.y = gameHeight - player.height - 10;
+    if (player.x + player.width > gameWidth) {
+      player.x = gameWidth - player.width;
     }
   }
 
