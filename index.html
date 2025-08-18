@@ -6,6 +6,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+=======
   <link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
 <body>
@@ -23,7 +25,6 @@
 
     <div id="startOverlay" class="overlay show">
       <h1>Space Invaders</h1>
-      <p>Use arrow keys to move and space bar to shoot.</p>
       <button id="startButton">Start Game</button>
     </div>
 
@@ -60,6 +61,11 @@
   <script type="module">
     import Game from './game.js';
     import { initGameUI } from './ui.js';
+
+    const game = new Game();
+    document.addEventListener('DOMContentLoaded', () => initGameUI(game));
+  </script>
+=======
     const game = new Game();
     document.addEventListener('DOMContentLoaded', () => initGameUI(game));
   </script>
