@@ -189,3 +189,13 @@ canvas {
 .overlay {
     color: var(--color-accent);
 }
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #ffffff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}

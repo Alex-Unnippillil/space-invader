@@ -125,7 +125,6 @@ function init() {
   const enemyOffsetTop = 50;
   const enemyOffsetLeft = 50;
   const gameOverText = "Game Over";
-  const scoreText = "Score: ";
 
   // Player object
     const player = {
@@ -263,6 +262,12 @@ function init() {
     document.addEventListener('keydown', this.handleSpacebar);
   }
 
+  // HUD elements
+  const scoreEl = document.getElementById("score");
+  const highScoreEl = document.getElementById("highScore");
+  const livesEl = document.getElementById("lives");
+  const levelEl = document.getElementById("level");
+=======
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
       this.player.moveLeft();
@@ -272,6 +277,23 @@ function init() {
   // Game variables
   let gameOver = false;
   let score = 0;
+  let highScore = 0;
+  let lives = 3;
+  let level = 1;
+
+  window.gameState = { score, highScore, lives, level };
+
+  function updateHUD() {
+    scoreEl.textContent = score;
+    highScoreEl.textContent = highScore;
+    livesEl.textContent = lives;
+    levelEl.textContent = level;
+    window.gameState.score = score;
+    window.gameState.highScore = highScore;
+    window.gameState.lives = lives;
+    window.gameState.level = level;
+  }
+=======
   let highScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
 
   let level = 1;
@@ -476,6 +498,7 @@ function init() {
 
         // Check collision with player
         if (checkCollision(player, enemy)) {
+          lives--;
           gameOver = true;
 
         if (this.checkCollision(this.player, enemy)) {
@@ -490,6 +513,7 @@ function init() {
           score++;
           if (score > highScore) {
             highScore = score;
+=======
             localStorage.setItem("highScore", highScore);
           }
           playSound("explosion.wav");
@@ -616,6 +640,7 @@ function init() {
       }
     });
 
+=======
     // Draw score
     context.fillStyle = "#ffffff";
     context.font = "20px Arial";
@@ -688,12 +713,20 @@ function init() {
 
   }
 
+    // Request next animation frame
+    updateHUD();
+    requestAnimationFrame(gameLoop);
+=======
   start() {
     this.gameLoop();
   }
 }
 
 
+  // Start the game loop
+  updateHUD();
+  gameLoop();
+=======
 function startGame() {
   document.getElementById("startOverlay").style.display = "none";
   document.getElementById("gameOverOverlay").style.display = "none";
