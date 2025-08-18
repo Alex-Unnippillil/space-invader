@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
   <title>Space Invaders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
 <body>
-
   <div id="gameContainer">
     <div id="hud">
       <div>Score: <span id="score">0</span></div>
       <div>High Score: <span id="highScore">0</span></div>
       <div>Lives: <span id="lives">3</span></div>
       <div>Level: <span id="level">1</span></div>
+      <button id="leaderboardButton">Leaderboard</button>
     </div>
 
     <canvas id="bgCanvas" width="800" height="600"></canvas>
@@ -41,7 +42,6 @@
       <p>Press P to resume</p>
     </div>
 
-    <button id="leaderboardButton">Leaderboard</button>
     <div id="leaderboardOverlay" class="overlay hidden">
       <div class="leaderboard-content">
         <h2>Leaderboard</h2>
@@ -55,164 +55,13 @@
       <button id="shootButton">Shoot</button>
       <button id="rightButton">Right</button>
     </div>
-=======
-  <div id="hud">
-    <div>Score: <span id="score">0</span></div>
-    <div>High Score: <span id="highScore">0</span></div>
-    <div>Lives: <span id="lives">3</span></div>
-    <div>Level: <span id="level">1</span></div>
-    <button id="leaderboardButton">Leaderboard</button>
   </div>
 
-  <canvas id="bgCanvas" width="800" height="600"></canvas>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-
-  <div id="startOverlay" class="overlay show">
-    <h1>Space Invaders</h1>
-    <button id="startButton">Start Game</button>
-  </div>
-
-  <div id="gameOverOverlay" class="overlay">
-    <h1>Game Over</h1>
-    <button id="restartButton">Restart</button>
-  </div>
-
-  <div id="winOverlay" class="overlay">
-    <h1>You Win!</h1>
-    <button id="playAgainButton">Play Again</button>
-  </div>
-
-  <div id="leaderboardOverlay" class="overlay hidden">
-=======
-  <div id="pauseOverlay" class="overlay">
-    <h1>Paused</h1>
-    <p>Press P to resume</p>
-  </div>
-
-  <div id="leaderboardOverlay" class="overlay">
-    <div class="leaderboard-content">
-      <h2>Leaderboard</h2>
-      <ol id="leaderboardList"></ol>
-      <button id="closeLeaderboard">Close</button>
-=======
-    </div>
-  </div>
-
-  <div id="mobileControls">
-    <button id="leftButton">Left</button>
-    <button id="shootButton">Shoot</button>
-    <button id="rightButton">Right</button>
-  </div>
-
-  <script src="starfield.js"></script>
   <script type="module">
     import Game from './game.js';
+    import { initGameUI } from './ui.js';
     const game = new Game();
-    game.start();
+    document.addEventListener('DOMContentLoaded', () => initGameUI(game));
   </script>
-
-=======
-  <head>
-    <title>Space Invaders</title>
-
-    <link rel="stylesheet" type="text/css" href="styles.css" />
-  </head>
-  <body>
-    <canvas id="bgCanvas" width="800" height="600"></canvas>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-=======
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
-<body>
-    <div id="hud">
-        <div>Score: <span id="score">0</span></div>
-        <div>High Score: <span id="highScore">0</span></div>
-        <div>Lives: <span id="lives">3</span></div>
-        <div>Level: <span id="level">1</span></div>
-    </div>
-  </div>
-
-  <script type="module" src="./game.js"></script>
-=======
-=======
-=======
-=======
-  <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
-<body>
-    <canvas id="bgCanvas" width="800" height="600"></canvas>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-=======
-    <canvas id="gameCanvas"></canvas>
-=======
-
-    <div id="hud">
-      <div>Score: <span id="score">0</span></div>
-      <div>High Score: <span id="highScore">0</span></div>
-      <div>Lives: <span id="lives">3</span></div>
-      <div>Level: <span id="level">1</span></div>
-    </div>
-=======
-=======
-
-    <canvas id="bgCanvas" width="800" height="600"></canvas>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-
-    <div id="startOverlay" class="overlay show">
-      <button id="startButton">Start Game</button>
-    </div>
-
-    <div id="gameOverOverlay" class="overlay">
-      <div>Game Over</div>
-      <button id="restartButton">Restart</button>
-    </div>
-
-    <div id="pauseOverlay" class="overlay"><div>Paused</div></div>
-
-    <script type="module">
-      import Game from './game.js';
-      const game = new Game();
-      // Start is triggered by Start button
-    </script>
-  </body>
-=======
-=======
-    <button id="leaderboardButton">Leaderboard</button>
-    <div id="leaderboardOverlay" class="overlay hidden">
-        <div class="leaderboard-content">
-            <h2>Leaderboard</h2>
-            <ol id="leaderboardList"></ol>
-            <button id="closeLeaderboard">Close</button>
-        </div>
-    </div>
-
-=======
-
-    <div id="mobileControls">
-        <button id="leftButton">Left</button>
-        <button id="shootButton">Shoot</button>
-        <button id="rightButton">Right</button>
-    </div>
-
-    <div id="pauseOverlay">
-        <h1>Paused</h1>
-        <p>Press P to resume</p>
-    </div>
-
-
-    <script src="starfield.js"></script>
-    <script type="module">
-        import Game from './game.js';
-        import { initGameUI } from './ui.js';
-
-        const game = new Game();
-        document.addEventListener('DOMContentLoaded', () => initGameUI(game));
-    </script>
-
-=======
-
 </body>
 </html>
