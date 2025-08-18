@@ -30,7 +30,6 @@ const ENEMY_OFFSET_TOP = 50;
 const ENEMY_OFFSET_LEFT = 50;
 const ENEMY_BASE_SPEED = 1;
 
-// Overlay helpers
 export function showOverlay(id) {
   const el = document.getElementById(id);
   if (el) el.classList.add('show');
@@ -43,6 +42,7 @@ export function hideOverlay(id) {
 
 export default class Game {
   constructor() {
+=======
     this.canvas = document.getElementById('gameCanvas');
     this.context = this.canvas.getContext('2d');
     const bgCanvas = document.getElementById('bgCanvas');
@@ -64,6 +64,10 @@ export default class Game {
     this.ctx = this.canvas.getContext('2d');
     const bgCanvas = document.getElementById('bgCanvas');
     this.starfield = new Starfield(bgCanvas);
+
+    this.gameWidth = this.canvas.width;
+    this.gameHeight = this.canvas.height;
+=======
 
     this.gameWidth = this.canvas.width;
     this.gameHeight = this.canvas.height;
@@ -94,15 +98,26 @@ export default class Game {
     this.accentColor =
       styles.getPropertyValue('--color-accent').trim() || '#ff0000';
 
-    // Entities
     this.player = new Player(
       this.gameWidth / 2 - 20,
       this.gameHeight - 40,
       40,
       30,
       5,
-      this.primaryColor
+      '#00ff00'
     );
+    this.bullet = new Bullet(5, 15, 7, '#ff0000');
+
+    this.enemyRowCount = 5;
+    this.enemyColumnCount = 10;
+    this.enemyPadding = 10;
+    this.enemyOffsetTop = 50;
+    this.enemyOffsetLeft = 50;
+    this.enemies = [];
+    this.enemyDirection = 1;
+    this.enemySpeed = 1;
+    this.spawnEnemies();
+=======
     this.bullet = new Bullet(5, 15, 7, this.accentColor);
 
     // Enemy configuration
@@ -139,11 +154,13 @@ export default class Game {
     // Particles
     this.particles = [];
 
-    // Game state
     this.score = 0;
     this.highScore = parseInt(localStorage.getItem('highScore'), 10) || 0;
     this.lives = 3;
     this.level = 1;
+
+    this.gameLoop = this.gameLoop.bind(this);
+=======
     this.isPaused = false;
     this.gameOver = false;
     this.paused = false;
@@ -162,8 +179,16 @@ export default class Game {
       lives: this.lives,
       level: this.level,
     });
-    this.gameLoop();
+    requestAnimationFrame(this.gameLoop);
   }
+
+  reset() {
+    this.enemies = [];
+    this.spawnEnemies();
+    this.score = 0;
+    this.level = 1;
+    this.bullet.isFired = false;
+=======
 
   reset() {
     document.removeEventListener('keydown', this.handleKeyDown);
@@ -208,6 +233,10 @@ export default class Game {
   spawnEnemies() {
     for (let row = 0; row < this.enemyRowCount; row++) {
       for (let col = 0; col < this.enemyColumnCount; col++) {
+        const x = col * (30 + this.enemyPadding) + this.enemyOffsetLeft;
+        const y = row * (30 + this.enemyPadding) + this.enemyOffsetTop;
+        this.enemies.push(new Enemy(x, y, 30, 30, '#ff00ff'));
+=======
         const x =
           col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
         const y =
@@ -241,6 +270,26 @@ export default class Game {
     if (e.code === 'KeyP') this.togglePause();
   }
 
+  handleKeyDown(e) {
+    if (e.code === 'ArrowLeft') this.player.moveLeft();
+    if (e.code === 'ArrowRight') this.player.moveRight();
+    if (e.code === 'Space') {
+      if (!this.bullet.isFired)
+        this.bullet.fire(
+          this.player.x + this.player.width / 2,
+          this.player.y
+        );
+    }
+  }
+
+  handleKeyUp(e) {
+    if (e.code === 'ArrowLeft') this.player.stopLeft();
+    if (e.code === 'ArrowRight') this.player.stopRight();
+  }
+
+  update() {
+    this.starfield.update();
+=======
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
       this.player.moveLeft();
@@ -337,6 +386,20 @@ export default class Game {
 
     let hitEdge = false;
     this.enemies.forEach((enemy) => {
+      if (!enemy.isAlive) return;
+      enemy.update(this.enemyDirection, this.enemySpeed);
+      if (
+        (this.enemyDirection === 1 &&
+          enemy.x + enemy.width >= this.gameWidth) ||
+        (this.enemyDirection === -1 && enemy.x <= 0)
+      ) {
+        hitEdge = true;
+      }
+    });
+    if (hitEdge) {
+      this.enemyDirection *= -1;
+      this.enemies.forEach((e) => e.moveDown(20));
+=======
       enemy.update(this.enemyDirection, this.enemySpeed);
       if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
         hitEdge = true;
@@ -354,13 +417,16 @@ export default class Game {
 
     if (this.bullet.isFired) {
       this.enemies.forEach((enemy) => {
+        if (!enemy.isAlive) return;
+        const hit =
+=======
         if (
           enemy.isAlive &&
           this.bullet.x < enemy.x + enemy.width &&
           this.bullet.x + this.bullet.width > enemy.x &&
           this.bullet.y < enemy.y + enemy.height &&
-          this.bullet.y + this.bullet.height > enemy.y
-        ) {
+          this.bullet.y + this.bullet.height > enemy.y;
+        if (hit) {
           enemy.isAlive = false;
           this.bullet.isFired = false;
           this.score += 10;
@@ -380,6 +446,8 @@ export default class Game {
             this.bullet.y
           );
         }
+      });
+=======
       });
     }
 =======
@@ -505,6 +573,20 @@ let currentGame;
     this.ctx.clearRect(0, 0, this.gameWidth, this.gameHeight);
     this.player.draw(this.ctx);
     this.bullet.draw(this.ctx);
+
+    
+    this.enemies.forEach((e) => e.draw(this.ctx));
+  }
+
+  gameLoop() {
+    this.update();
+    this.draw();
+    requestAnimationFrame(this.gameLoop);
+  }
+}
+
+export { updateHUD, saveScore, showLeaderboard, hideLeaderboard };
+=======
     this.enemies.forEach((enemy) => enemy.draw(this.ctx));
     this.particles.forEach((p) => {
       this.ctx.fillStyle = p.color;
