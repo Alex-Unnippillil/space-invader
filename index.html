@@ -15,6 +15,30 @@
         <div>Level: <span id="level">1</span></div>
     </div>
 
+=======
+=======
+=======
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <canvas id="bgCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+=======
+    <canvas id="gameCanvas"></canvas>
+=======
+
+    <div id="gameContainer">
+        <div id="startOverlay" class="overlay">
+            <button id="startButton">Start Game</button>
+        </div>
+        <div id="gameOverOverlay" class="overlay">
+            <div>Game Over</div>
+            <button id="restartButton">Restart</button>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+=======
+
     <canvas id="bgCanvas" width="800" height="600"></canvas>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
@@ -34,6 +58,18 @@
         <button id="playAgainButton">Play Again</button>
     </div>
 
+=======
+    <button id="leaderboardButton">Leaderboard</button>
+    <div id="leaderboardOverlay" class="overlay hidden">
+        <div class="leaderboard-content">
+            <h2>Leaderboard</h2>
+            <ol id="leaderboardList"></ol>
+            <button id="closeLeaderboard">Close</button>
+        </div>
+    </div>
+
+=======
+
     <div id="mobileControls">
         <button id="leftButton">Left</button>
         <button id="shootButton">Shoot</button>
@@ -45,11 +81,17 @@
         <p>Press P to resume</p>
     </div>
 
+
     <script src="starfield.js"></script>
     <script type="module">
         import Game from './game.js';
         const game = new Game();
         game.start();
     </script>
+=======
+
+
+
+
 </body>
 </html>
