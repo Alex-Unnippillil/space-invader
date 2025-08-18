@@ -1,3 +1,28 @@
+function showOverlay(id) {
+  document.getElementById(id).classList.add("show");
+}
+
+function hideOverlay(id) {
+  document.getElementById(id).classList.remove("show");
+}
+
+function startGame() {
+  hideOverlay("startOverlay");
+  init();
+}
+
+function resetGame() {
+  window.location.reload();
+}
+
+document.getElementById("startButton").addEventListener("click", startGame);
+document
+  .getElementById("restartButton")
+  .addEventListener("click", resetGame);
+document
+  .getElementById("playAgainButton")
+  .addEventListener("click", resetGame);
+
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
@@ -119,14 +144,17 @@ function init() {
   function updateEnemies() {
     let wallHit = false;
     let moveEnemiesDown = false;
+    let aliveCount = 0;
 
     enemies.forEach((enemy) => {
       if (enemy.isAlive) {
+        aliveCount++;
         enemy.x += enemyDirection * enemySpeed;
 
         // Check collision with player
         if (checkCollision(player, enemy)) {
           gameOver = true;
+          showOverlay("gameOverOverlay");
         }
 
         // Check collision with bullet
@@ -151,6 +179,11 @@ function init() {
         }
       }
     });
+
+    if (aliveCount === 0 && !gameOver) {
+      gameOver = true;
+      showOverlay("winOverlay");
+    }
 
     // Move enemies down if they hit the wall
     if (wallHit) {
@@ -252,8 +285,5 @@ function init() {
   gameLoop();
 }
 
-// Start the game after the page has loaded
-window.onload = function () {
-  init();
-};
+// Start screen displayed by default; game begins on button click.
 
