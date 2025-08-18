@@ -6,6 +6,9 @@ import {
   updateHUD,
   saveScore,
   showLeaderboard,
+  hideLeaderboard,
+} from './hud.js';
+=======
   hideLeaderboard
 } from './hud.js';
 
@@ -44,6 +47,17 @@ export default class Game {
     this.context = this.canvas.getContext('2d');
     const bgCanvas = document.getElementById('bgCanvas');
     if (bgCanvas) this.starfield = new Starfield(bgCanvas);
+
+    // Game constants
+    this.gameWidth = this.canvas.width;
+    this.gameHeight = this.canvas.height;
+    this.playerWidth = 40;
+    this.playerHeight = 30;
+    this.playerSpeed = 5;
+    this.bulletWidth = 5;
+    this.bulletHeight = 15;
+    this.bulletSpeed = 7;
+=======
 =======
     // Canvas and starfield
     this.canvas = document.getElementById('gameCanvas');
@@ -98,6 +112,26 @@ export default class Game {
     this.enemyHeight = 30;
     this.enemyPadding = 10;
     this.enemyOffsetTop = 50;
+    this.enemyOffsetLeft = 50;
+
+    // Entities
+    this.player = new Player(
+      this.gameWidth / 2 - this.playerWidth / 2,
+      this.gameHeight - this.playerHeight - 10,
+      this.playerWidth,
+      this.playerHeight,
+      this.playerSpeed,
+      '#00ff00'
+    );
+    this.bullet = new Bullet(
+      this.bulletWidth,
+      this.bulletHeight,
+      this.bulletSpeed,
+      '#ff0000'
+    );
+
+    this.enemies = [];
+=======
     this.enemySpeed = 1;
     this.enemyDirection = 1;
     this.enemies = [];
@@ -126,7 +160,7 @@ export default class Game {
       score: this.score,
       highScore: this.highScore,
       lives: this.lives,
-      level: this.level
+      level: this.level,
     });
     this.gameLoop();
   }
@@ -134,6 +168,7 @@ export default class Game {
   reset() {
     document.removeEventListener('keydown', this.handleKeyDown);
     document.removeEventListener('keyup', this.handleKeyUp);
+=======
     this.enemies = [];
     this.enemyDirection = 1;
     this.enemySpeed = ENEMY_BASE_SPEED;
@@ -166,11 +201,18 @@ export default class Game {
       score: this.score,
       highScore: this.highScore,
       lives: this.lives,
-      level: this.level
+      level: this.level,
     });
   }
 
   spawnEnemies() {
+    for (let row = 0; row < this.enemyRowCount; row++) {
+      for (let col = 0; col < this.enemyColumnCount; col++) {
+        const x =
+          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
+        const y =
+          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
+=======
     for (let row = 0; row < ENEMY_ROWS; row++) {
       for (let col = 0; col < ENEMY_COLUMNS; col++) {
         const x = col * (ENEMY_WIDTH + ENEMY_PADDING) + ENEMY_OFFSET_LEFT;
@@ -209,6 +251,7 @@ export default class Game {
         const startX = this.player.x + this.player.width / 2;
         const startY = this.player.y;
         this.bullet.fire(startX, startY);
+=======
 =======
   handleKeyUp(e) {
     if (e.code === 'ArrowLeft') this.player.stopLeft();
@@ -325,6 +368,7 @@ export default class Game {
             this.highScore = this.score;
             localStorage.setItem('highScore', this.highScore);
           }
+=======
           updateHUD({
             score: this.score,
             highScore: this.highScore,
@@ -373,6 +417,13 @@ export default class Game {
 =======
     this.update();
     this.draw();
+    updateHUD({
+      score: this.score,
+      highScore: this.highScore,
+      lives: this.lives,
+      level: this.level,
+    });
+=======
       if (!this.gameOver) {
         requestAnimationFrame(() => this.gameLoop());
       } else {
@@ -398,6 +449,7 @@ export default class Game {
 }
 
 let currentGame;
+=======
 =======
 =======
       updateLeaderboard();
@@ -507,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeLeaderboard)
     closeLeaderboard.addEventListener('click', hideLeaderboard);
 });
+=======
 
 =======
   loop(timestamp) {
