@@ -15,6 +15,7 @@
         <div>Lives: <span id="lives">3</span></div>
         <div>Level: <span id="level">1</span></div>
     </div>
+    <button id="leaderboardButton">Leaderboard</button>
 =======
 =======
   <link rel="stylesheet" type="text/css" href="styles.css">
@@ -55,6 +56,13 @@
     <div id="winOverlay" class="overlay">
         <h1>You Win!</h1>
         <button id="playAgainButton">Play Again</button>
+    </div>
+
+    <div id="leaderboardOverlay" class="overlay hidden">
+        <div class="leaderboard-content">
+            <button id="closeLeaderboard">Close</button>
+            <ol id="leaderboardList"></ol>
+        </div>
     </div>
 
 =======
