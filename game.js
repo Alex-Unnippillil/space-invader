@@ -214,6 +214,11 @@ export default class Game {
     this.gameLoop();
   }
 
+  // Game variables
+  let gameOver = false;
+  let score = 0;
+  let flashOpacity = 0;
+=======
   resetState() {
     this.player.x = this.gameWidth / 2 - this.playerWidth / 2;
     this.player.y = this.gameHeight - this.playerHeight - 10;
@@ -411,6 +416,37 @@ export default class Game {
     }
   }
 
+  // Shake the screen by translating the canvas
+  function screenShake(intensity, duration) {
+    const start = performance.now();
+    const originalTransform = canvas.style.transform;
+    function shake() {
+      const elapsed = performance.now() - start;
+      if (elapsed < duration) {
+        const dx = (Math.random() - 0.5) * intensity * 2;
+        const dy = (Math.random() - 0.5) * intensity * 2;
+        canvas.style.transform = `translate(${dx}px, ${dy}px)`;
+        requestAnimationFrame(shake);
+      } else {
+        canvas.style.transform = originalTransform;
+      }
+    }
+    requestAnimationFrame(shake);
+  }
+
+  // Flash the screen with a white overlay
+  function flashScreen(duration) {
+    flashOpacity = 0.5;
+    setTimeout(() => {
+      flashOpacity = 0;
+    }, duration);
+  }
+
+  // Update enemy positions and check collision with player and bullet
+  function updateEnemies() {
+    let wallHit = false;
+    let moveEnemiesDown = false;
+=======
   spawnEnemies() {
     for (let row = 0; row < this.enemyRows; row++) {
       for (let col = 0; col < this.enemyCols; col++) {
@@ -437,6 +473,23 @@ export default class Game {
     }
   }
 
+        // Check collision with player
+        if (checkCollision(player, enemy)) {
+          gameOver = true;
+          screenShake(10, 300);
+          flashScreen(100);
+        }
+
+        // Check collision with bullet
+        if (bullet.isFired && checkCollision(bullet, enemy)) {
+          enemy.isAlive = false;
+          bullet.isFired = false;
+          score++;
+          playSound("explosion.wav");
+          screenShake(5, 300);
+          flashScreen(50);
+        }
+=======
   togglePause() {
     this.isPaused = !this.isPaused;
     if (this.pauseOverlay) {
@@ -674,6 +727,15 @@ let currentGame;
     this.player.draw(this.ctx);
     this.bullet.draw(this.ctx);
 
+    // Draw flash overlay
+    if (flashOpacity > 0) {
+      context.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
+      context.fillRect(0, 0, gameWidth, gameHeight);
+    }
+
+    // Request next animation frame
+    requestAnimationFrame(gameLoop);
+=======
     
     this.enemies.forEach((e) => e.draw(this.ctx));
   }
