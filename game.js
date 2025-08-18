@@ -106,7 +106,7 @@ function init() {
   const bulletSpeed = 7;
   const enemyWidth = 30;
   const enemyHeight = 30;
-  const enemyRowCount = 5;
+  const baseEnemyRowCount = 5;
   const enemyColumnCount = 10;
   const enemyPadding = 10;
   const enemyOffsetTop = 50;
@@ -114,6 +114,49 @@ function init() {
   const gameOverText = "Game Over";
   const scoreText = "Score: ";
 
+  const player = {
+    x: gameWidth / 2 - playerWidth / 2,
+    y: gameHeight - playerHeight - 10,
+    width: playerWidth,
+    height: playerHeight,
+    color: "#00ff00",
+    isMovingLeft: false,
+    isMovingRight: false
+  };
+
+  // Bullet object
+  const bullet = {
+    x: 0,
+    y: 0,
+    width: bulletWidth,
+    height: bulletHeight,
+    color: "#ff0000",
+    isFired: false
+  };
+
+  // Enemy objects
+  const enemies = [];
+  let enemySpeed = 1; // Speed of enemy movement
+  let enemyDirection = 1; // Direction of enemy movement
+  let enemyMoveDown = false; // Flag to indicate whether enemies should move down
+
+  function spawnEnemies(level) {
+    enemySpeed = 1 + (level - 1) * 0.5;
+    enemyDirection = 1;
+    enemies.length = 0;
+    const rows = baseEnemyRowCount + level - 1;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < enemyColumnCount; col++) {
+        const enemy = {
+          x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
+          y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
+          width: enemyWidth,
+          height: enemyHeight,
+          color: "#00ffff",
+          isAlive: true
+        };
+        enemies.push(enemy);
+=======
 
     this.enemies = [];
     this.enemySpeed = 1;
@@ -128,6 +171,7 @@ function init() {
         this.enemies.push(
           new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
         );
+
       }
     }
 
@@ -154,7 +198,13 @@ function init() {
   // Game variables
   let gameOver = false;
   let score = 0;
+
+  let level = 1;
+
+  spawnEnemies(level);
+
   let isPaused = false;
+
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
@@ -348,6 +398,14 @@ function init() {
       }
 
 
+      updateEnemies();
+      if (enemies.every((enemy) => !enemy.isAlive)) {
+        level++;
+        spawnEnemies(level);
+      }
+    }
+
+
   draw() {
     this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
@@ -366,6 +424,12 @@ function init() {
       if (this.score >= 50) {
         const congratulatoryText = 'Congratulations!';
         const congratulatoryTextWidth = this.context.measureText(
+
+
+    // Draw score and level
+    context.fillStyle = "#ffffff";
+    context.font = "20px Arial";
+    context.fillText(`${scoreText}${score} Level: ${level}`, 10, 30);
 
     if (gameOver && gameState !== "gameOver") {
       showGameOver();
