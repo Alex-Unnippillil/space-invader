@@ -11,6 +11,13 @@ body {
     background-color: var(--color-background);
 }
 
+#gameContainer {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+}
+
 /* Canvas */
 canvas {
     position: absolute;
