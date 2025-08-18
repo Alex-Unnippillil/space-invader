@@ -1,8 +1,18 @@
+let overlayEnabled = true;
+
+function updateOverlay() {
+  const overlay = document.getElementById("crtOverlay");
+  if (overlay) {
+    overlay.style.display = overlayEnabled ? "block" : "none";
+  }
+}
+
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
+  updateOverlay();
 
   // Define game constants
   const gameWidth = canvas.width;
@@ -72,6 +82,7 @@ function init() {
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
   document.addEventListener("keydown", handleSpacebar);
+  document.addEventListener("keydown", handleOverlayToggle);
 
   function handleKeyDown(event) {
     if (event.key === "ArrowLeft") {
@@ -96,6 +107,13 @@ function init() {
         bullet.x = player.x + player.width / 2 - bullet.width / 2;
         bullet.y = player.y - bullet.height;
       }
+    }
+  }
+
+  function handleOverlayToggle(event) {
+    if (event.key === "o" || event.key === "O") {
+      overlayEnabled = !overlayEnabled;
+      updateOverlay();
     }
   }
 
