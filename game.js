@@ -67,6 +67,7 @@ function init() {
   // Game variables
   let gameOver = false;
   let score = 0;
+  let flashOpacity = 0;
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
@@ -115,6 +116,32 @@ function init() {
     sound.play();
   }
 
+  // Shake the screen by translating the canvas
+  function screenShake(intensity, duration) {
+    const start = performance.now();
+    const originalTransform = canvas.style.transform;
+    function shake() {
+      const elapsed = performance.now() - start;
+      if (elapsed < duration) {
+        const dx = (Math.random() - 0.5) * intensity * 2;
+        const dy = (Math.random() - 0.5) * intensity * 2;
+        canvas.style.transform = `translate(${dx}px, ${dy}px)`;
+        requestAnimationFrame(shake);
+      } else {
+        canvas.style.transform = originalTransform;
+      }
+    }
+    requestAnimationFrame(shake);
+  }
+
+  // Flash the screen with a white overlay
+  function flashScreen(duration) {
+    flashOpacity = 0.5;
+    setTimeout(() => {
+      flashOpacity = 0;
+    }, duration);
+  }
+
   // Update enemy positions and check collision with player and bullet
   function updateEnemies() {
     let wallHit = false;
@@ -127,6 +154,8 @@ function init() {
         // Check collision with player
         if (checkCollision(player, enemy)) {
           gameOver = true;
+          screenShake(10, 300);
+          flashScreen(100);
         }
 
         // Check collision with bullet
@@ -135,6 +164,8 @@ function init() {
           bullet.isFired = false;
           score++;
           playSound("explosion.wav");
+          screenShake(5, 300);
+          flashScreen(50);
         }
 
         // Check if enemies hit the wall
@@ -242,6 +273,12 @@ function init() {
           gameHeight / 2
         );
       }
+    }
+
+    // Draw flash overlay
+    if (flashOpacity > 0) {
+      context.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
+      context.fillRect(0, 0, gameWidth, gameHeight);
     }
 
     // Request next animation frame
