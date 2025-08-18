@@ -353,6 +353,21 @@ export default class Game {
     if (e.code === 'ArrowRight') this.player.stopRight();
   }
 
+  handleResize() {
+    this.gameWidth = window.innerWidth;
+    this.gameHeight = window.innerHeight;
+    this.canvas.width = this.gameWidth;
+    this.canvas.height = this.gameHeight;
+    if (this.bgCanvas) {
+      this.bgCanvas.width = this.gameWidth;
+      this.bgCanvas.height = this.gameHeight;
+      if (this.starfield) {
+        this.starfield.resize(this.gameWidth, this.gameHeight);
+      }
+    }
+  }
+
+=======
   update() {
     this.starfield.update();
 =======
@@ -517,6 +532,7 @@ export default class Game {
   }
 
   update() {
+=======
     if (this.starfield) this.starfield.update();
 =======
     this.player.update(this.gameWidth);
@@ -606,7 +622,6 @@ export default class Game {
   }
 
   draw() {
-    if (this.starfield) this.starfield.draw();
     this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
     this.player.draw(this.context);
     this.bullet.draw(this.context);
@@ -616,6 +631,11 @@ export default class Game {
   }
 
   gameLoop() {
+    if (this.starfield) {
+      this.starfield.update();
+      this.starfield.draw();
+    }
+=======
     if (this.isPaused) {
       requestAnimationFrame(() => this.gameLoop());
       return;
@@ -702,6 +722,37 @@ let currentGame;
     const reachedBottom = this.enemies.some(
       (e) => e.y + e.height >= this.player.y
     );
+  }
+
+  endGame() {
+    this.gameOver = true;
+    this.highScore = Math.max(this.highScore, this.score);
+    localStorage.setItem('highScore', this.highScore);
+    if (this.gameOverOverlay) this.gameOverOverlay.classList.add('show');
+  }
+
+  update() {
+    this.player.update(this.gameWidth);
+    if (this.player.isMovingLeft || this.player.isMovingRight) {
+      this.emitPlayerParticles();
+    }
+    this.bullet.update();
+    if (this.bullet.isFired) {
+      this.emitBulletParticles();
+    }
+
+    if (this.bullet.isFired) {
+      this.enemies.forEach((enemy) => {
+        if (enemy.isAlive && this.checkCollision(this.bullet, enemy)) {
+          enemy.isAlive = false;
+          this.bullet.isFired = false;
+          this.score += 10;
+          if (this.score > this.highScore) {
+            this.highScore = this.score;
+          }
+          this.updateHUD();
+        }
+=======
     if (reachedBottom) {
       this.lives--;
       updateHUD({
