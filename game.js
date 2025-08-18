@@ -21,7 +21,6 @@ function init() {
   const enemyOffsetTop = 50;
   const enemyOffsetLeft = 50;
   const gameOverText = "Game Over";
-  const scoreText = "Score: ";
 
   // Player object
   const player = {
@@ -64,9 +63,31 @@ function init() {
     }
   }
 
+  // HUD elements
+  const scoreEl = document.getElementById("score");
+  const highScoreEl = document.getElementById("highScore");
+  const livesEl = document.getElementById("lives");
+  const levelEl = document.getElementById("level");
+
   // Game variables
   let gameOver = false;
   let score = 0;
+  let highScore = 0;
+  let lives = 3;
+  let level = 1;
+
+  window.gameState = { score, highScore, lives, level };
+
+  function updateHUD() {
+    scoreEl.textContent = score;
+    highScoreEl.textContent = highScore;
+    livesEl.textContent = lives;
+    levelEl.textContent = level;
+    window.gameState.score = score;
+    window.gameState.highScore = highScore;
+    window.gameState.lives = lives;
+    window.gameState.level = level;
+  }
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
@@ -126,6 +147,7 @@ function init() {
 
         // Check collision with player
         if (checkCollision(player, enemy)) {
+          lives--;
           gameOver = true;
         }
 
@@ -134,6 +156,9 @@ function init() {
           enemy.isAlive = false;
           bullet.isFired = false;
           score++;
+          if (score > highScore) {
+            highScore = score;
+          }
           playSound("explosion.wav");
         }
 
@@ -210,11 +235,6 @@ function init() {
       }
     });
 
-    // Draw score
-    context.fillStyle = "#ffffff";
-    context.font = "20px Arial";
-    context.fillText(scoreText + score, 10, 30);
-
     // Draw game over or congratulatory message
     if (gameOver) {
       context.fillStyle = "#ff0000";
@@ -245,10 +265,12 @@ function init() {
     }
 
     // Request next animation frame
+    updateHUD();
     requestAnimationFrame(gameLoop);
   }
 
   // Start the game loop
+  updateHUD();
   gameLoop();
 }
 
