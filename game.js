@@ -3,6 +3,7 @@ function init() {
   // Set up the canvas and rendering context
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
+  const pauseOverlay = document.getElementById("pauseOverlay");
 
   // Define game constants
   const gameWidth = canvas.width;
@@ -67,11 +68,13 @@ function init() {
   // Game variables
   let gameOver = false;
   let score = 0;
+  let isPaused = false;
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
   document.addEventListener("keydown", handleSpacebar);
+  document.addEventListener("keydown", handlePause);
 
   function handleKeyDown(event) {
     if (event.key === "ArrowLeft") {
@@ -96,6 +99,13 @@ function init() {
         bullet.x = player.x + player.width / 2 - bullet.width / 2;
         bullet.y = player.y - bullet.height;
       }
+    }
+  }
+
+  function handlePause(event) {
+    if (event.key === "p" || event.key === "P") {
+      isPaused = !isPaused;
+      pauseOverlay.style.display = isPaused ? "flex" : "none";
     }
   }
 
@@ -170,6 +180,11 @@ function init() {
 
   // Game loop
   function gameLoop() {
+    if (isPaused) {
+      requestAnimationFrame(gameLoop);
+      return;
+    }
+
     // Update game state
     if (!gameOver) {
       if (player.isMovingLeft) {
