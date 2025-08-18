@@ -1,12 +1,103 @@
+const defaultSettings = {
+  volume: 1,
+  difficulty: "medium",
+  starfield: 50,
+};
+let settings = { ...defaultSettings };
+let enemySpeed = 1;
+let stars = [];
+let canvas, gameWidth, gameHeight, context;
+
+function loadSettings() {
+  const saved = localStorage.getItem("gameSettings");
+  if (saved) {
+    Object.assign(settings, JSON.parse(saved));
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem("gameSettings", JSON.stringify(settings));
+}
+
+function generateStars(count) {
+  stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * gameWidth,
+      y: Math.random() * gameHeight,
+      speed: Math.random() + 0.5,
+    });
+  }
+}
+
+function updateStarfield() {
+  stars.forEach((star) => {
+    star.y += star.speed;
+    if (star.y > gameHeight) {
+      star.y = 0;
+      star.x = Math.random() * gameWidth;
+    }
+  });
+}
+
+function drawStarfield() {
+  context.fillStyle = "#ffffff";
+  stars.forEach((star) => {
+    context.fillRect(star.x, star.y, 2, 2);
+  });
+}
+
+function applySettings() {
+  enemySpeed =
+    settings.difficulty === "easy"
+      ? 0.5
+      : settings.difficulty === "hard"
+      ? 2
+      : 1;
+  generateStars(settings.starfield);
+}
+
+function setupSettings() {
+  loadSettings();
+  const modal = document.getElementById("settingsModal");
+  const openBtn = document.getElementById("settingsButton");
+  const closeBtn = document.getElementById("closeSettings");
+  const saveBtn = document.getElementById("saveSettings");
+  const volumeSlider = document.getElementById("volumeSlider");
+  const difficultySelect = document.getElementById("difficultySelect");
+  const starfieldSlider = document.getElementById("starfieldSlider");
+
+  openBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  saveBtn.addEventListener("click", () => {
+    settings.volume = parseFloat(volumeSlider.value);
+    settings.difficulty = difficultySelect.value;
+    settings.starfield = parseInt(starfieldSlider.value, 10);
+    saveSettings();
+    applySettings();
+    modal.classList.add("hidden");
+  });
+
+  volumeSlider.value = settings.volume;
+  difficultySelect.value = settings.difficulty;
+  starfieldSlider.value = settings.starfield;
+}
+
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
-  const canvas = document.getElementById("gameCanvas");
-  const context = canvas.getContext("2d");
+  canvas = document.getElementById("gameCanvas");
+  context = canvas.getContext("2d");
 
   // Define game constants
-  const gameWidth = canvas.width;
-  const gameHeight = canvas.height;
+  gameWidth = canvas.width;
+  gameHeight = canvas.height;
   const playerWidth = 40;
   const playerHeight = 30;
   const playerSpeed = 5;
@@ -46,9 +137,10 @@ function init() {
 
   // Enemy objects
   const enemies = [];
-  const enemySpeed = 1; // Speed of enemy movement
   let enemyDirection = 1; // Direction of enemy movement
   let enemyMoveDown = false; // Flag to indicate whether enemies should move down
+
+  applySettings();
 
   for (let row = 0; row < enemyRowCount; row++) {
     for (let col = 0; col < enemyColumnCount; col++) {
@@ -112,6 +204,7 @@ function init() {
   // Play sound effect
   function playSound(soundSrc) {
     const sound = new Audio(soundSrc);
+    sound.volume = settings.volume;
     sound.play();
   }
 
@@ -191,6 +284,9 @@ function init() {
     // Clear the canvas
     context.clearRect(0, 0, gameWidth, gameHeight);
 
+    updateStarfield();
+    drawStarfield();
+
     // Draw player
     context.fillStyle = player.color;
     context.fillRect(player.x, player.y, player.width, player.height);
@@ -254,6 +350,7 @@ function init() {
 
 // Start the game after the page has loaded
 window.onload = function () {
+  setupSettings();
   init();
 };
 
