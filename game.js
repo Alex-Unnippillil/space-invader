@@ -1,3 +1,5 @@
+let animationId;
+
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
@@ -242,18 +244,38 @@ function init() {
           gameHeight / 2
         );
       }
+      document.getElementById("gameOverOverlay").style.display = "flex";
+      return;
     }
 
     // Request next animation frame
-    requestAnimationFrame(gameLoop);
+    animationId = requestAnimationFrame(gameLoop);
   }
 
   // Start the game loop
   gameLoop();
 }
 
-// Start the game after the page has loaded
-window.onload = function () {
+function startGame() {
+  document.getElementById("startOverlay").style.display = "none";
+  document.getElementById("gameOverOverlay").style.display = "none";
+  cancelAnimationFrame(animationId);
   init();
+}
+
+function resetGame() {
+  document.getElementById("gameOverOverlay").style.display = "none";
+  cancelAnimationFrame(animationId);
+  init();
+}
+
+// Attach button handlers after page load
+window.onload = function () {
+  document
+    .getElementById("startButton")
+    .addEventListener("click", startGame);
+  document
+    .getElementById("restartButton")
+    .addEventListener("click", resetGame);
 };
 
