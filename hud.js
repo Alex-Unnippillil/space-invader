@@ -57,4 +57,11 @@ function hideLeaderboard() {
   if (leaderboardOverlay) leaderboardOverlay.classList.remove('show');
 }
 
-export { initHUD, updateHUD, saveScore, showLeaderboard, hideLeaderboard };
+export {
+  initHUD,
+  updateHUD,
+  saveScore,
+  updateLeaderboard,
+  showLeaderboard,
+  hideLeaderboard,
+};
