@@ -1,4 +1,9 @@
-// Particle class for thruster and bullet trails
+import Player from './player.js';
+import Bullet from './bullet.js';
+import Enemy from './enemy.js';
+import Starfield from './starfield.js';
+
+// Particle used for thruster and bullet trails
 class Particle {
   constructor(x, y, vx, vy, lifespan, color) {
     this.x = x;
@@ -7,7 +12,7 @@ class Particle {
     this.vy = vy;
     this.lifespan = lifespan;
     this.remaining = lifespan;
-    // color should be a string in the form "r,g,b"
+    // color string "r,g,b"
     this.color = color;
   }
 
@@ -28,39 +33,41 @@ class Particle {
   }
 }
 
+export default class Game {
+  constructor() {
+    // Canvas and background starfield
+    this.canvas = document.getElementById('gameCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.bgCanvas = document.getElementById('bgCanvas');
+    this.starfield = new Starfield(this.bgCanvas);
+
+    // Handle initial sizing
+    this.handleResize();
+
+    // Colors from CSS variables with fallbacks
+    const styles = getComputedStyle(document.documentElement);
+    this.primaryColor =
+      styles.getPropertyValue('--color-primary').trim() || '#00ff00';
+    this.accentColor =
+      styles.getPropertyValue('--color-accent').trim() || '#ff0000';
+
+    // Entities
+    this.player = new Player(
+      this.gameWidth / 2 - 20,
+      this.gameHeight - 40,
+      40,
+      30,
+      5,
+      this.primaryColor
+    );
+    this.bullet = new Bullet(5, 15, 7, this.accentColor);
+
+    // Enemy configuration
 =======
-function showOverlay(id) {
-  document.getElementById(id).classList.add("show");
-}
-
-function hideOverlay(id) {
-  document.getElementById(id).classList.remove("show");
-}
-
-function startGame() {
-  hideOverlay("startOverlay");
-  init();
-}
-
-function resetGame() {
-  window.location.reload();
-}
-
-document.getElementById("startButton").addEventListener("click", startGame);
-document
-  .getElementById("restartButton")
-  .addEventListener("click", resetGame);
-document
-  .getElementById("playAgainButton")
-  .addEventListener("click", resetGame);
+import { updateHUD, saveScore, showLeaderboard } from './hud.js';
 =======
+import Starfield from './starfield.js';
 
-let animationId;
-
-
-import Player from './player.js';
-import Bullet from './bullet.js';
-import Enemy from './enemy.js';
 
 export default class Game {
   constructor() {
@@ -76,13 +83,16 @@ export default class Game {
     this.bulletWidth = 5;
     this.bulletHeight = 15;
     this.bulletSpeed = 7;
+
     this.enemyWidth = 30;
     this.enemyHeight = 30;
-    this.enemyRowCount = 5;
-    this.enemyColumnCount = 10;
     this.enemyPadding = 10;
     this.enemyOffsetTop = 50;
     this.enemyOffsetLeft = 50;
+
+    this.enemyColumns = 10;
+    this.baseEnemyRows = 5;
+=======
     this.gameOverText = 'Game Over';
     this.scoreText = 'Score: ';
 
@@ -102,35 +112,6 @@ export default class Game {
       this.bulletSpeed,
       '#ff0000'
     );
-
-function saveScore(name, score) {
-  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-  data.push({ name, score });
-  data.sort((a, b) => b.score - a.score);
-  localStorage.setItem("leaderboard", JSON.stringify(data.slice(0, 5)));
-}
-
-function updateLeaderboard() {
-  const list = document.getElementById("leaderboardList");
-  if (!list) return;
-  list.innerHTML = "";
-  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-  data.slice(0, 5).forEach((entry) => {
-    const li = document.createElement("li");
-    li.textContent = `${entry.name}: ${entry.score}`;
-    list.appendChild(li);
-  });
-}
-
-function showLeaderboard() {
-  updateLeaderboard();
-  document.getElementById("leaderboardOverlay").classList.remove("hidden");
-}
-
-function hideLeaderboard() {
-  document.getElementById("leaderboardOverlay").classList.add("hidden");
-}
-
 
 // Game initialization
 function init() {
@@ -292,40 +273,64 @@ function init() {
     this.enemies = [];
     this.enemySpeed = 1;
     this.enemyDirection = 1;
+    this.enemyBullets = [];
+    this.enemyBulletSpeed = 3;
 
-    for (let row = 0; row < this.enemyRowCount; row++) {
-      for (let col = 0; col < this.enemyColumnCount; col++) {
-        const x =
-          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
-        const y =
-          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
-        this.enemies.push(
-          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
-        );
+    // Particle effects
+    this.particles = [];
 
-      }
-
-    }
-
-    // Game variables
-    this.gameOver = false;
+    // Game state
     this.score = 0;
+    this.highScore = parseInt(localStorage.getItem('highScore'), 10) || 0;
+    this.lives = 3;
+    this.level = 1;
+    this.isPaused = false;
+    this.gameOver = false;
 
-    // Event listeners
+    // HUD elements
+    this.scoreEl = document.getElementById('score');
+    this.highScoreEl = document.getElementById('highScore');
+    this.livesEl = document.getElementById('lives');
+    this.levelEl = document.getElementById('level');
+
+    // Overlays
+    this.startOverlay = document.getElementById('startOverlay');
+    this.gameOverOverlay = document.getElementById('gameOverOverlay');
+    this.pauseOverlay = document.getElementById('pauseOverlay');
+
+    // Method bindings
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
-    this.handleSpacebar = this.handleSpacebar.bind(this);
+    this.handlePause = this.handlePause.bind(this);
+    this.handleResize = this.handleResize.bind(this);
 
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
-    document.addEventListener('keydown', this.handleSpacebar);
+    // UI buttons
+    document
+      .getElementById('startButton')
+      ?.addEventListener('click', () => this.start());
+    document
+      .getElementById('restartButton')
+      ?.addEventListener('click', () => this.reset());
+
+    window.addEventListener('resize', this.handleResize);
   }
 
-  // HUD elements
-  const scoreEl = document.getElementById("score");
-  const highScoreEl = document.getElementById("highScore");
-  const livesEl = document.getElementById("lives");
-  const levelEl = document.getElementById("level");
+
+  handleResize() {
+    this.canvas.width = this.gameWidth = window.innerWidth;
+    this.canvas.height = this.gameHeight = window.innerHeight;
+    if (this.bgCanvas) {
+      this.bgCanvas.width = window.innerWidth;
+      this.bgCanvas.height = window.innerHeight;
+    }
+    if (this.player) {
+      this.player.y = this.gameHeight - this.player.height - 10;
+      if (this.player.x + this.player.width > this.gameWidth) {
+        this.player.x = this.gameWidth - this.player.width;
+      }
+    }
+  }
+=======
 =======
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
@@ -342,500 +347,229 @@ function init() {
 
   window.gameState = { score, highScore, lives, level };
 
-  function updateHUD() {
-    scoreEl.textContent = score;
-    highScoreEl.textContent = highScore;
-    livesEl.textContent = lives;
-    levelEl.textContent = level;
-    window.gameState.score = score;
-    window.gameState.highScore = highScore;
-    window.gameState.lives = lives;
-    window.gameState.level = level;
-  }
 =======
   let highScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
 
-  let level = 1;
-
-  spawnEnemies(level);
-
-  let isPaused = false;
-
-
-  // Event listeners for player controls
-  document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("keyup", handleKeyUp);
-
-  document.addEventListener("keydown", handleSpacebar);
-
-  window.addEventListener("resize", handleResize);
-=======
-  document.addEventListener("keydown", handlePause);
-
-
-
-  startButton.addEventListener("click", startGame);
-  resumeButton.addEventListener("click", resumeGame);
-  restartButton.addEventListener("click", () => location.reload());
-  upgradeClose.addEventListener("click", hideUpgrade);
-
-  function startGame() {
-    startScreen.classList.remove("active");
-    canvasContainer.classList.add("active");
-    gameState = "playing";
+  start() {
+    this.spawnEnemies();
+    this.updateHUD();
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+    document.addEventListener('keydown', this.handlePause);
+    this.startOverlay?.classList.remove('show');
+    this.loop();
   }
 
-  function pauseGame() {
-    if (gameState === "playing") {
-      gameState = "paused";
-      pauseScreen.classList.add("active");
-    }
+  reset() {
+    window.location.reload();
   }
 
-  function resumeGame() {
-    if (gameState === "paused") {
-      gameState = "playing";
-      pauseScreen.classList.remove("active");
-    }
-  }
-
-  function showUpgrade() {
-    if (gameState === "playing") {
-      gameState = "upgrade";
-      upgradeScreen.classList.add("active");
-      upgradeScreen.classList.add("slide");
-    }
-  }
-
-  function hideUpgrade() {
-    if (gameState === "upgrade") {
-      gameState = "playing";
-      upgradeScreen.classList.remove("active");
-      upgradeScreen.classList.remove("slide");
-    }
-  }
-
-  function showGameOver() {
-    canvasContainer.classList.remove("active");
-    gameState = "gameOver";
-    gameOverScreen.classList.add("active");
-  }
-
-  const leftButton = document.getElementById("leftButton");
-  const rightButton = document.getElementById("rightButton");
-  const shootButton = document.getElementById("shootButton");
-
-  leftButton.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    player.isMovingLeft = true;
-  });
-  leftButton.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    player.isMovingLeft = false;
-  });
-  leftButton.addEventListener("touchcancel", () => {
-    player.isMovingLeft = false;
-  });
-
-  rightButton.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    player.isMovingRight = true;
-  });
-  rightButton.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    player.isMovingRight = false;
-  });
-  rightButton.addEventListener("touchcancel", () => {
-    player.isMovingRight = false;
-  });
-
-  shootButton.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    if (!bullet.isFired) {
-      bullet.isFired = true;
-      bullet.x = player.x + player.width / 2 - bullet.width / 2;
-      bullet.y = player.y - bullet.height;
-    }
-  });
-  shootButton.addEventListener("touchend", (e) => {
-    e.preventDefault();
-  });
-
-  function handleKeyDown(event) {
-    if (gameState === "playing") {
-      if (event.key === "ArrowLeft") {
-        player.isMovingLeft = true;
-      } else if (event.key === "ArrowRight") {
-        player.isMovingRight = true;
-      } else if (event.key === " " && !bullet.isFired) {
-        bullet.isFired = true;
-        bullet.x = player.x + player.width / 2 - bullet.width / 2;
-        bullet.y = player.y - bullet.height;
-      } else if (event.key === "p") {
-        pauseGame();
-      } else if (event.key === "u") {
-        showUpgrade();
+  handlePause(e) {
+    if (e.key === 'p' || e.key === 'P') {
+      this.isPaused = !this.isPaused;
+      if (this.pauseOverlay) {
+        this.pauseOverlay.style.display = this.isPaused ? 'flex' : 'none';
       }
-    } else if (gameState === "paused" && event.key === "p") {
-      resumeGame();
-    } else if (gameState === "upgrade" && event.key === "u") {
-      hideUpgrade();
-
     }
   }
 
-  handleKeyUp(event) {
-    if (event.key === 'ArrowLeft') {
+  handleKeyDown(e) {
+    if (e.key === 'ArrowLeft') {
+      this.player.moveLeft();
+    } else if (e.key === 'ArrowRight') {
+      this.player.moveRight();
+    } else if (e.key === ' ' && !this.bullet.isFired) {
+      this.bullet.fire(this.player.x + this.player.width / 2, this.player.y);
+      this.emitBulletParticles();
+    }
+  }
+
+  handleKeyUp(e) {
+    if (e.key === 'ArrowLeft') {
       this.player.stopLeft();
-    } else if (event.key === 'ArrowRight') {
+    } else if (e.key === 'ArrowRight') {
       this.player.stopRight();
     }
   }
 
-  handleSpacebar(event) {
-    if (event.key === ' ' && !this.bullet.isFired) {
-      this.bullet.fire(
-        this.player.x + this.player.width / 2,
-        this.player.y
+  spawnEnemies() {
+    this.enemies = [];
+    this.enemySpeed = 1 + (this.level - 1) * 0.5;
+    for (let row = 0; row < this.baseEnemyRows + this.level - 1; row++) {
+      for (let col = 0; col < this.enemyColumns; col++) {
+        const x =
+          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
+        const y =
+          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
+        this.enemies.push(
+          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
+        );
+      }
+    }
+  }
+
+  updateHUD() {
+    if (this.scoreEl) this.scoreEl.textContent = this.score;
+    if (this.highScoreEl) this.highScoreEl.textContent = this.highScore;
+    if (this.livesEl) this.livesEl.textContent = this.lives;
+    if (this.levelEl) this.levelEl.textContent = this.level;
+  }
+
+  emitPlayerParticles() {
+    const color = '0,255,0';
+    for (let i = 0; i < 3; i++) {
+      this.particles.push(
+        new Particle(
+          this.player.x + this.player.width / 2,
+          this.player.y + this.player.height,
+          (Math.random() - 0.5) * 2,
+          Math.random() * 2 + 1,
+          30,
+          color
+        )
       );
-
-  function handlePause(event) {
-    if (event.key === "p" || event.key === "P") {
-      isPaused = !isPaused;
-      pauseOverlay.style.display = isPaused ? "flex" : "none";
-
     }
   }
 
-  function handleResize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    gameWidth = canvas.width;
-    gameHeight = canvas.height;
-    player.y = gameHeight - player.height - 10;
-    if (player.x + player.width > gameWidth) {
-      player.x = gameWidth - player.width;
+  emitBulletParticles() {
+    const color = '255,0,0';
+    for (let i = 0; i < 3; i++) {
+      this.particles.push(
+        new Particle(
+          this.bullet.x + this.bullet.width / 2,
+          this.bullet.y + this.bullet.height,
+          (Math.random() - 0.5) * 2,
+          (Math.random() + 0.5) * 2,
+          30,
+          color
+        )
+      );
     }
   }
 
-  // Particle emission helpers
-  function emitPlayerParticle() {
-    const x = player.x + player.width / 2;
-    const y = player.y + player.height;
-    const vx = (Math.random() - 0.5) * 1;
-    const vy = Math.random() * 1 + 1;
-    particles.push(new Particle(x, y, vx, vy, 30, "255,165,0"));
-  }
-
-  function emitBulletParticle() {
-    const x = bullet.x + bullet.width / 2;
-    const y = bullet.y + bullet.height;
-    const vx = (Math.random() - 0.5) * 0.5;
-    const vy = Math.random() * 1 + 1;
-    particles.push(new Particle(x, y, vx, vy, 20, "255,255,255"));
-  }
-
-  // Check collision between two objects
-  function checkCollision(obj1, obj2) {
-=======
-  checkCollision(obj1, obj2) {
-
-    return (
-      obj1.x < obj2.x + obj2.width &&
-      obj1.x + obj1.width > obj2.x &&
-      obj1.y < obj2.y + obj2.height &&
-      obj1.y + obj1.height > obj2.y
-    );
-  }
-
-  playSound(soundSrc) {
-    const sound = new Audio(soundSrc);
-    sound.play();
+  updateParticles() {
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.update();
+      if (!p.isAlive()) {
+        this.particles.splice(i, 1);
+      }
+    }
   }
 
   updateEnemies() {
-    let wallHit = false;
-    let moveEnemiesDown = false;
-    let aliveCount = 0;
+    let hitEdge = false;
+    this.enemies.forEach((enemy) => {
+      enemy.update(this.enemyDirection, this.enemySpeed);
+      if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
+        hitEdge = true;
+      }
+    });
+    if (hitEdge) {
+      this.enemyDirection *= -1;
+      this.enemies.forEach((enemy) => enemy.moveDown(this.enemyHeight / 2));
+    }
+
+    if (Math.random() < 0.02) {
+      const shooters = this.enemies.filter((e) => e.isAlive);
+      if (shooters.length) {
+        const shooter = shooters[Math.floor(Math.random() * shooters.length)];
+        this.enemyBullets.push({
+          x: shooter.x + shooter.width / 2 - 2,
+          y: shooter.y + shooter.height,
+          width: 4,
+          height: 10,
+          color: '#ffffff'
+        });
+      }
+    }
+
+    for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
+      const b = this.enemyBullets[i];
+      b.y += this.enemyBulletSpeed;
+      if (this.checkCollision(b, this.player)) {
+        this.enemyBullets.splice(i, 1);
+        this.lives--;
+        this.updateHUD();
+        if (this.lives <= 0) this.endGame();
+      } else if (b.y > this.gameHeight) {
+        this.enemyBullets.splice(i, 1);
+      }
+    }
+  }
+
+  checkCollision(a, b) {
+    return (
+      a.x < b.x + b.width &&
+      a.x + a.width > b.x &&
+      a.y < b.y + b.height &&
+      a.y + a.height > b.y
+    );
+  }
+
+  endGame() {
+    this.gameOver = true;
+    this.highScore = Math.max(this.highScore, this.score);
+    localStorage.setItem('highScore', this.highScore);
+    if (this.gameOverOverlay) this.gameOverOverlay.classList.add('show');
+  }
+
+  update() {
+    this.starfield.update();
+    this.player.update(this.gameWidth);
+    if (this.player.isMovingLeft || this.player.isMovingRight) {
+      this.emitPlayerParticles();
+    }
+    this.bullet.update();
+    if (this.bullet.isFired) {
+      this.emitBulletParticles();
+    }
+
+    if (this.bullet.isFired) {
+      this.enemies.forEach((enemy) => {
+        if (enemy.isAlive && this.checkCollision(this.bullet, enemy)) {
+          enemy.isAlive = false;
+          this.bullet.isFired = false;
+          this.score += 10;
+          if (this.score > this.highScore) {
+            this.highScore = this.score;
+          }
+          this.updateHUD();
+        }
+      });
+    }
 
     this.enemies.forEach((enemy) => {
-      if (enemy.isAlive) {
-        aliveCount++;
-        enemy.x += enemyDirection * enemySpeed;
-=======
-        enemy.update(this.enemyDirection, this.enemySpeed);
-
-        // Randomly shoot bullets
-        if (Math.random() < 0.002) {
-          enemyBullets.push({
-            x: enemy.x + enemy.width / 2 - bulletWidth / 2,
-            y: enemy.y + enemy.height,
-            width: bulletWidth,
-            height: bulletHeight,
-            color: "#ffff00",
-          });
-        }
-
-        // Check collision with player
-        if (checkCollision(player, enemy)) {
-          lives--;
-          gameOver = true;
-          showOverlay("gameOverOverlay");
-=======
-
-        if (this.checkCollision(this.player, enemy)) {
-          this.gameOver = true;
-
-        }
-
-        if (this.bullet.isFired && this.checkCollision(this.bullet, enemy)) {
-          enemy.isAlive = false;
-
-          bullet.isFired = false;
-          score++;
-          if (score > highScore) {
-            highScore = score;
-=======
-            localStorage.setItem("highScore", highScore);
-          }
-          playSound("explosion.wav");
-
-          this.bullet.isFired = false;
-          this.score++;
-          this.playSound('explosion.wav');
-
-        }
-
-        if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
-          wallHit = true;
-        }
-
-        if (enemy.y + enemy.height >= this.gameHeight) {
-          moveEnemiesDown = true;
-        }
+      if (enemy.isAlive && enemy.y + enemy.height >= this.player.y) {
+        this.endGame();
       }
     });
 
-    if (aliveCount === 0 && !gameOver) {
-      gameOver = true;
-      showOverlay("winOverlay");
+    if (this.enemies.every((e) => !e.isAlive)) {
+      this.level++;
+      this.spawnEnemies();
+      this.updateHUD();
     }
 
-    // Move enemies down if they hit the wall
-=======
-    if (wallHit) {
-      this.enemyDirection *= -1;
-      this.enemies.forEach((enemy) => enemy.moveDown(enemy.height));
-    }
-
-    if (moveEnemiesDown) {
-      this.enemies.forEach((enemy) => enemy.moveDown(enemy.height));
-    }
+    this.updateEnemies();
+    this.updateParticles();
   }
-{
-    if (!this.gameOver) {
-      this.player.update(this.gameWidth);
-      this.bullet.update();
-      this.updateEnemies();
-    }
-  }
-
-  // Game loop
-  function gameLoop() {
-    starfield.update();
-    starfield.draw();
-=======
-    if (isPaused) {
-      requestAnimationFrame(gameLoop);
-      return;
-    }
-
-    // Update game state
-
-      if (player.isMovingLeft || player.isMovingRight) {
-        emitPlayerParticle();
-      }
-
-      if (bullet.isFired) {
-        bullet.y -= bulletSpeed;
-        emitBulletParticle();
-        if (bullet.y < 0) {
-          bullet.isFired = false;
-=======
-
-        if (bullet.isFired) {
-          bullet.y -= bulletSpeed;
-          if (bullet.y < 0) {
-            bullet.isFired = false;
-          }
-        }
-
-        updateEnemies();
-      } else if (!gameOverHandled) {
-        gameOverHandled = true;
-        setTimeout(() => {
-          const name = prompt("Game over! Enter your name:");
-          if (name) {
-            saveScore(name, score);
-          }
-          showLeaderboard();
-        }, 0);
-      }
-
-
-      updateEnemies();
-
-    // Update and cull particles
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.update();
-      if (!p.isAlive()) {
-        particles.splice(i, 1);
-      }
-    }
-
-    // Clear the canvas
-    context.clearRect(0, 0, gameWidth, gameHeight);
-
-    // Draw particles with additive blending for glow
-    context.save();
-    context.globalCompositeOperation = "lighter";
-    particles.forEach((p) => p.draw(context));
-    context.restore();
-
-    // Draw player
-    context.fillStyle = player.color;
-    context.fillRect(player.x, player.y, player.width, player.height);
-=======
-      // Update enemy bullets
-      for (let i = enemyBullets.length - 1; i >= 0; i--) {
-        const eBullet = enemyBullets[i];
-        eBullet.y += enemyBulletSpeed;
-        if (checkCollision(eBullet, player)) {
-          enemyBullets.splice(i, 1);
-          player.lives--;
-          if (player.lives <= 0) {
-            gameOver = true;
-          }
-        } else if (eBullet.y > gameHeight) {
-          enemyBullets.splice(i, 1);
-        }
-
-      if (enemies.every((enemy) => !enemy.isAlive)) {
-        level++;
-        spawnEnemies(level);
-
-      }
-    }
-
 
   draw() {
-    this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
+    this.starfield.draw();
+    this.ctx.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
-    this.player.draw(this.context);
-    this.bullet.draw(this.context);
-    this.enemies.forEach((enemy) => enemy.draw(this.context));
-
-    this.context.fillStyle = '#ffffff';
-    this.context.font = '20px Arial';
-    this.context.fillText(this.scoreText + this.score, 10, 30);
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = 'lighter';
+    this.particles.forEach((p) => p.draw(this.ctx));
+    this.ctx.restore();
 
 
-    // Draw enemy bullets
-    enemyBullets.forEach((enemyBullet) => {
-      context.fillStyle = enemyBullet.color;
-      context.fillRect(
-        enemyBullet.x,
-        enemyBullet.y,
-        enemyBullet.width,
-        enemyBullet.height
-      );
-    });
-
-    // Draw enemies
-    enemies.forEach((enemy) => {
-      if (enemy.isAlive) {
-        // Draw enemy shape
-        context.fillStyle = enemy.color;
-        context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-      }
-    });
-
+    this.player.draw(this.ctx);
+    this.bullet.draw(this.ctx);
 =======
-    // Draw score
-    context.fillStyle = "#ffffff";
-    context.font = "20px Arial";
-
-    context.fillText(
-      `${scoreText}${score} ${highScoreText}${highScore}`,
-      10,
-      30
-    );
-
-    context.fillText(scoreText + score, 10, 30);
-    context.fillText(livesText + player.lives, 10, 55);
-
-    if (this.gameOver) {
-      this.context.fillStyle = '#ff0000';
-      this.context.font = '50px Arial';
-      const gameOverTextWidth = this.context.measureText(this.gameOverText).width;
-      if (this.score >= 50) {
-        const congratulatoryText = 'Congratulations!';
-        const congratulatoryTextWidth = this.context.measureText(
-
-
-    // Draw score and level
-    context.fillStyle = "#ffffff";
-    context.font = "20px Arial";
-    context.fillText(`${scoreText}${score} Level: ${level}`, 10, 30);
-
-    if (gameOver && gameState !== "gameOver") {
-      showGameOver();
-    }
-
-
-    // Draw game over or congratulatory message
-    if (gameState === "gameOver") {
-      context.fillStyle = "#ff0000";
-      context.font = "50px Arial";
-      const gameOverTextWidth = context.measureText(gameOverText).width;
-      if (score >= 50) {
-        const congratulatoryText = "Congratulations!";
-        const congratulatoryTextWidth = context.measureText(
-
-          congratulatoryText
-        ).width;
-        this.context.fillText(
-          congratulatoryText,
-          this.gameWidth / 2 - congratulatoryTextWidth / 2,
-          this.gameHeight / 2 - 50
-        );
-        this.context.fillText(
-          this.gameOverText,
-          this.gameWidth / 2 - gameOverTextWidth / 2,
-          this.gameHeight / 2 + 50
-        );
-      } else {
-        this.context.fillText(
-          this.gameOverText,
-          this.gameWidth / 2 - gameOverTextWidth / 2,
-          this.gameHeight / 2
-        );
-      }
-      document.getElementById("gameOverOverlay").style.display = "flex";
-      return;
-    }
-  }
-
-  gameLoop() {
-    this.update();
-    this.draw();
-    requestAnimationFrame(() => this.gameLoop());
-
-  }
-
     // Request next animation frame
-    updateHUD();
+    updateHUD({ score, highScore, lives, level });
     requestAnimationFrame(gameLoop);
 =======
   start() {
@@ -844,8 +578,17 @@ function init() {
 }
 
 
+    this.enemyBullets.forEach((b) => {
+      this.ctx.fillStyle = b.color;
+      this.ctx.fillRect(b.x, b.y, b.width, b.height);
+    });
+
+
+    this.enemies.forEach((enemy) => enemy.draw(this.ctx));
+  }
+=======
   // Start the game loop
-  updateHUD();
+  updateHUD({ score, highScore, lives, level });
   gameLoop();
 =======
 function startGame() {
@@ -855,14 +598,18 @@ function startGame() {
   init();
 }
 
-// Start screen displayed by default; game begins on button click.
-=======
-function resetGame() {
-  document.getElementById("gameOverOverlay").style.display = "none";
-  cancelAnimationFrame(animationId);
-  init();
+
+  loop() {
+    if (!this.isPaused && !this.gameOver) {
+      this.update();
+      this.draw();
+    }
+    requestAnimationFrame(() => this.loop());
+  }
 }
 
+
+=======
 // Attach button handlers after page load
 window.onload = function () {
   document
@@ -877,14 +624,5 @@ window.onload = function () {
     document.getElementById("startScreen").classList.add("hidden");
     init();
   });
-  document
-    .getElementById("leaderboardButton")
-    .addEventListener("click", showLeaderboard);
-  document
-    .getElementById("closeLeaderboard")
-    .addEventListener("click", hideLeaderboard);
-  updateLeaderboard();
-
-  
 };
 
