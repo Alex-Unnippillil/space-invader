@@ -499,6 +499,18 @@ function init() {
   gameLoop() {
     this.update();
     this.draw();
+      if (!this.gameOver) {
+        requestAnimationFrame(() => this.gameLoop());
+      } else {
+        if (this.enemies.every((e) => !e.isAlive)) {
+          showOverlay('winOverlay');
+        } else {
+          showOverlay('gameOverOverlay');
+        }
+        saveScore('Player', this.score);
+        showLeaderboard();
+      }
+=======
     if (!this.gameOver) {
       requestAnimationFrame(() => this.gameLoop());
     } else {
@@ -512,7 +524,6 @@ function init() {
       updateLeaderboard();
     }
   }
-}
 
   emitPlayerParticles() {
     const color = '0,255,0';
@@ -697,6 +708,13 @@ function startGame() {
   hideOverlay('startOverlay');
   hideOverlay('gameOverOverlay');
   hideOverlay('winOverlay');
+  init();
+}
+
+function resetGame() {
+  startGame();
+}
+=======
   hideLeaderboard();
   if (!currentGame) {
     currentGame = new Game();
@@ -733,6 +751,12 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 
+=======
+// Attach button handlers after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('startButton')?.addEventListener('click', startGame);
+  document.getElementById('restartButton')?.addEventListener('click', resetGame);
+});
 =======
 
 
