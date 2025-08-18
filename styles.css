@@ -6,8 +6,58 @@ body {
     overflow: hidden;
 }
 
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+}
+
+#canvas-container {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#canvas-container.active {
+    opacity: 1;
+}
+
 canvas {
     background-color: #000000;
     display: block;
-    margin: 0 auto;
+}
+
+#overlays .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease;
+}
+
+#overlays .overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+#overlays .overlay.slide {
+    animation: slide-down 0.5s forwards;
 }

@@ -3,6 +3,15 @@ function init() {
   // Set up the canvas and rendering context
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
+  const canvasContainer = document.getElementById("canvas-container");
+  const startScreen = document.getElementById("start-screen");
+  const pauseScreen = document.getElementById("pause-screen");
+  const gameOverScreen = document.getElementById("game-over-screen");
+  const upgradeScreen = document.getElementById("upgrade-screen");
+  const startButton = document.getElementById("start-button");
+  const resumeButton = document.getElementById("resume-button");
+  const restartButton = document.getElementById("restart-button");
+  const upgradeClose = document.getElementById("upgrade-close");
 
   // Define game constants
   const gameWidth = canvas.width;
@@ -67,17 +76,78 @@ function init() {
   // Game variables
   let gameOver = false;
   let score = 0;
+  let gameState = "start";
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
-  document.addEventListener("keydown", handleSpacebar);
+
+  startButton.addEventListener("click", startGame);
+  resumeButton.addEventListener("click", resumeGame);
+  restartButton.addEventListener("click", () => location.reload());
+  upgradeClose.addEventListener("click", hideUpgrade);
+
+  function startGame() {
+    startScreen.classList.remove("active");
+    canvasContainer.classList.add("active");
+    gameState = "playing";
+  }
+
+  function pauseGame() {
+    if (gameState === "playing") {
+      gameState = "paused";
+      pauseScreen.classList.add("active");
+    }
+  }
+
+  function resumeGame() {
+    if (gameState === "paused") {
+      gameState = "playing";
+      pauseScreen.classList.remove("active");
+    }
+  }
+
+  function showUpgrade() {
+    if (gameState === "playing") {
+      gameState = "upgrade";
+      upgradeScreen.classList.add("active");
+      upgradeScreen.classList.add("slide");
+    }
+  }
+
+  function hideUpgrade() {
+    if (gameState === "upgrade") {
+      gameState = "playing";
+      upgradeScreen.classList.remove("active");
+      upgradeScreen.classList.remove("slide");
+    }
+  }
+
+  function showGameOver() {
+    canvasContainer.classList.remove("active");
+    gameState = "gameOver";
+    gameOverScreen.classList.add("active");
+  }
 
   function handleKeyDown(event) {
-    if (event.key === "ArrowLeft") {
-      player.isMovingLeft = true;
-    } else if (event.key === "ArrowRight") {
-      player.isMovingRight = true;
+    if (gameState === "playing") {
+      if (event.key === "ArrowLeft") {
+        player.isMovingLeft = true;
+      } else if (event.key === "ArrowRight") {
+        player.isMovingRight = true;
+      } else if (event.key === " " && !bullet.isFired) {
+        bullet.isFired = true;
+        bullet.x = player.x + player.width / 2 - bullet.width / 2;
+        bullet.y = player.y - bullet.height;
+      } else if (event.key === "p") {
+        pauseGame();
+      } else if (event.key === "u") {
+        showUpgrade();
+      }
+    } else if (gameState === "paused" && event.key === "p") {
+      resumeGame();
+    } else if (gameState === "upgrade" && event.key === "u") {
+      hideUpgrade();
     }
   }
 
@@ -86,16 +156,6 @@ function init() {
       player.isMovingLeft = false;
     } else if (event.key === "ArrowRight") {
       player.isMovingRight = false;
-    }
-  }
-
-  function handleSpacebar(event) {
-    if (event.key === " ") {
-      if (!bullet.isFired) {
-        bullet.isFired = true;
-        bullet.x = player.x + player.width / 2 - bullet.width / 2;
-        bullet.y = player.y - bullet.height;
-      }
     }
   }
 
@@ -171,7 +231,7 @@ function init() {
   // Game loop
   function gameLoop() {
     // Update game state
-    if (!gameOver) {
+    if (gameState === "playing" && !gameOver) {
       if (player.isMovingLeft) {
         player.x -= playerSpeed;
       } else if (player.isMovingRight) {
@@ -215,8 +275,12 @@ function init() {
     context.font = "20px Arial";
     context.fillText(scoreText + score, 10, 30);
 
+    if (gameOver && gameState !== "gameOver") {
+      showGameOver();
+    }
+
     // Draw game over or congratulatory message
-    if (gameOver) {
+    if (gameState === "gameOver") {
       context.fillStyle = "#ff0000";
       context.font = "50px Arial";
       const gameOverTextWidth = context.measureText(gameOverText).width;

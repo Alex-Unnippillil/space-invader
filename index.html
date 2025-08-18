@@ -5,7 +5,28 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="game-container">
+        <div id="canvas-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+        <div id="overlays">
+            <div id="start-screen" class="overlay active">
+                <button id="start-button">Start Game</button>
+            </div>
+            <div id="pause-screen" class="overlay">
+                <p>Paused</p>
+                <button id="resume-button">Resume</button>
+            </div>
+            <div id="game-over-screen" class="overlay">
+                <p>Game Over</p>
+                <button id="restart-button">Restart</button>
+            </div>
+            <div id="upgrade-screen" class="overlay">
+                <p>Upgrade Screen</p>
+                <button id="upgrade-close">Close</button>
+            </div>
+        </div>
+    </div>
     <script src="game.js"></script>
 </body>
 </html>
