@@ -566,15 +566,19 @@ function init() {
   gameLoop() {
     this.update();
     this.draw();
-    if (!this.gameOver) {
-      requestAnimationFrame(() => this.gameLoop());
-    } else {
-      showOverlay('gameOverOverlay');
-      saveScore('Player', this.score);
-      updateLeaderboard();
+      if (!this.gameOver) {
+        requestAnimationFrame(() => this.gameLoop());
+      } else {
+        if (this.enemies.every((e) => !e.isAlive)) {
+          showOverlay('winOverlay');
+        } else {
+          showOverlay('gameOverOverlay');
+        }
+        saveScore('Player', this.score);
+        showLeaderboard();
+      }
     }
   }
-}
 
 =======
   emitPlayerParticles() {
@@ -754,10 +758,14 @@ function init() {
   gameLoop();
 =======
 function startGame() {
-  document.getElementById("startOverlay").style.display = "none";
-  document.getElementById("gameOverOverlay").style.display = "none";
-  cancelAnimationFrame(animationId);
+  hideOverlay('startOverlay');
+  hideOverlay('gameOverOverlay');
+  hideOverlay('winOverlay');
   init();
+}
+
+function resetGame() {
+  startGame();
 }
 
 
@@ -772,20 +780,10 @@ function startGame() {
 
 
 =======
-// Attach button handlers after page load
-window.onload = function () {
-  document
-    .getElementById("startButton")
-    .addEventListener("click", startGame);
-  document
-    .getElementById("restartButton")
-    .addEventListener("click", resetGame);
-=======
-window.onload = function () {
-  document.getElementById("startButton").addEventListener("click", () => {
-    document.getElementById("startScreen").classList.add("hidden");
-    init();
-  });
-};
+// Attach button handlers after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('startButton')?.addEventListener('click', startGame);
+  document.getElementById('restartButton')?.addEventListener('click', resetGame);
+});
 
 
