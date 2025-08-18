@@ -2,7 +2,6 @@ import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
 
-=======
 import Starfield from './starfield.js';
 
 // Particle used for thruster and bullet trails
@@ -74,7 +73,6 @@ export function hideLeaderboard() {
   }
 }
 
-=======
 export default class Game {
   constructor() {
     // Canvas and background starfield
@@ -105,9 +103,7 @@ export default class Game {
     this.bullet = new Bullet(5, 15, 7, this.accentColor);
 
     // Enemy configuration
-=======
 import { updateHUD, saveScore, showLeaderboard } from './hud.js';
-=======
 import Starfield from './starfield.js';
 
 
@@ -133,11 +129,9 @@ export default class Game {
     this.enemyOffsetTop = 50;
     this.enemyOffsetLeft = 50;
 
-=======
 
     this.enemyColumns = 10;
     this.baseEnemyRows = 5;
-=======
     this.gameOverText = 'Game Over';
     this.scoreText = 'Score: ';
 
@@ -193,7 +187,6 @@ export default class Game {
     }
   }
 
-=======
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
@@ -207,24 +200,11 @@ function init() {
   const COLOR_ACCENT = styles.getPropertyValue("--color-accent").trim();
   const COLOR_BACKGROUND = styles
     .getPropertyValue("--color-background")
-    .trim();
-=======
+  .trim();
 
   // Set canvas size to match the window
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-=======
-  const pauseOverlay = document.getElementById("pauseOverlay");
-
-  const canvasContainer = document.getElementById("canvas-container");
-  const startScreen = document.getElementById("start-screen");
-  const pauseScreen = document.getElementById("pause-screen");
-  const gameOverScreen = document.getElementById("game-over-screen");
-  const upgradeScreen = document.getElementById("upgrade-screen");
-  const startButton = document.getElementById("start-button");
-  const resumeButton = document.getElementById("resume-button");
-  const restartButton = document.getElementById("restart-button");
-  const upgradeClose = document.getElementById("upgrade-close");
 
   // Define game constants
   let gameWidth = canvas.width;
@@ -254,9 +234,7 @@ function init() {
       isMovingLeft: false,
       isMovingRight: false
     };
-=======
   const highScoreText = "High Score: ";
-=======
   const livesText = "Lives: ";
 
 
@@ -349,7 +327,6 @@ function init() {
           isAlive: true
         };
         enemies.push(enemy);
-=======
 
     this.enemies = [];
     this.enemySpeed = 1;
@@ -411,8 +388,6 @@ function init() {
       }
     }
   }
-=======
-=======
 
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
@@ -425,7 +400,6 @@ function init() {
         const startX = this.player.x + this.player.width / 2;
         const startY = this.player.y;
         this.bullet.fire(startX, startY);
-=======
 
   // Game variables
   let gameOver = false;
@@ -436,7 +410,6 @@ function init() {
 
   window.gameState = { score, highScore, lives, level };
 
-=======
   let highScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
 
   start() {
@@ -576,7 +549,6 @@ function init() {
   }
 }
 
-=======
   emitPlayerParticles() {
     const color = '0,255,0';
     for (let i = 0; i < 3; i++) {
@@ -729,11 +701,9 @@ function init() {
 
     this.player.draw(this.ctx);
     this.bullet.draw(this.ctx);
-=======
     // Request next animation frame
     updateHUD({ score, highScore, lives, level });
     requestAnimationFrame(gameLoop);
-=======
   start() {
     this.gameLoop();
   }
@@ -748,11 +718,11 @@ function init() {
 
     this.enemies.forEach((enemy) => enemy.draw(this.ctx));
   }
-=======
   // Start the game loop
   updateHUD({ score, highScore, lives, level });
   gameLoop();
-=======
+}
+
 function startGame() {
   document.getElementById("startOverlay").style.display = "none";
   document.getElementById("gameOverOverlay").style.display = "none";
@@ -760,18 +730,6 @@ function startGame() {
   init();
 }
 
-
-  loop() {
-    if (!this.isPaused && !this.gameOver) {
-      this.update();
-      this.draw();
-    }
-    requestAnimationFrame(() => this.loop());
-  }
-}
-
-
-=======
 // Attach button handlers after page load
 window.onload = function () {
   document
@@ -780,12 +738,4 @@ window.onload = function () {
   document
     .getElementById("restartButton")
     .addEventListener("click", resetGame);
-=======
-window.onload = function () {
-  document.getElementById("startButton").addEventListener("click", () => {
-    document.getElementById("startScreen").classList.add("hidden");
-    init();
-  });
 };
-
-
