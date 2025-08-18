@@ -244,6 +244,62 @@ export default class Game {
         }
       });
     }
+=======
+      }
+    }
+
+    for (const enemy of this.enemies) {
+      if (enemy.isAlive && enemy.y + enemy.height >= this.player.y) {
+        this.gameOver = true;
+        this.gameWon = false;
+      }
+    }
+
+    if (this.enemies.every((e) => !e.isAlive)) {
+      this.gameOver = true;
+      this.gameWon = true;
+    }
+  }
+
+  draw() {
+    if (this.starfield) this.starfield.draw();
+    this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
+    this.player.draw(this.context);
+    this.bullet.draw(this.context);
+    for (const enemy of this.enemies) {
+      enemy.draw(this.context);
+    }
+  }
+
+  gameLoop() {
+    this.update();
+    this.draw();
+      if (!this.gameOver) {
+        requestAnimationFrame(() => this.gameLoop());
+      } else {
+        if (this.enemies.every((e) => !e.isAlive)) {
+          showOverlay('winOverlay');
+        } else {
+          showOverlay('gameOverOverlay');
+        }
+        saveScore('Player', this.score);
+        showLeaderboard();
+      }
+=======
+=======
+    if (!this.gameOver) {
+      requestAnimationFrame(() => this.gameLoop());
+    } else {
+      const overlayId = this.gameWon ? 'winOverlay' : 'gameOverOverlay';
+      showOverlay(overlayId);
+      saveScore('Player', this.score);
+
+      showLeaderboard();
+    }
+=======
+      updateLeaderboard();
+    }
+  }
 
     this.enemies = this.enemies.filter((e) => e.isAlive);
 
@@ -300,6 +356,47 @@ export default class Game {
       this.ctx.fillRect(p.x, p.y, 2, 2);
     });
   }
+=======
+  // Start the game loop
+  updateHUD({ score, highScore, lives, level });
+  gameLoop();
+}
+
+
+function startGame() {
+  hideOverlay('startOverlay');
+  hideOverlay('gameOverOverlay');
+  hideOverlay('winOverlay');
+  init();
+}
+
+function resetGame() {
+  startGame();
+}
+=======
+=======
+  hideLeaderboard();
+  if (!currentGame) {
+    currentGame = new Game();
+  } else {
+    currentGame.reset();
+  }
+  currentGame.start();
+}
+
+
+function resetGame() {
+  startGame();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const startButton = document.getElementById('startButton');
+  const restartButton = document.getElementById('restartButton');
+  const playAgainButton = document.getElementById('playAgainButton');
+  if (startButton) startButton.addEventListener('click', startGame);
+  if (restartButton) restartButton.addEventListener('click', resetGame);
+  if (playAgainButton) playAgainButton.addEventListener('click', resetGame);
+});
 
   loop(timestamp) {
     const delta = timestamp - this.lastTime;
@@ -314,4 +411,28 @@ export default class Game {
     }
   }
 }
+
+=======
+
+=======
+// Attach button handlers after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('startButton')?.addEventListener('click', startGame);
+  document.getElementById('restartButton')?.addEventListener('click', resetGame);
+});
+=======
+=======
+
+
+=======
+// Attach button handlers after page load
+window.onload = function () {
+  document
+    .getElementById("startButton")
+    .addEventListener("click", startGame);
+  document
+    .getElementById("restartButton")
+    .addEventListener("click", resetGame);
+};
+
 
