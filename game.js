@@ -63,13 +63,213 @@ export default class Game {
     this.bullet = new Bullet(5, 15, 7, this.accentColor);
 
     // Enemy configuration
+=======
+import { updateHUD, saveScore, showLeaderboard } from './hud.js';
+=======
+import Starfield from './starfield.js';
+
+
+export default class Game {
+  constructor() {
+    this.canvas = document.getElementById('gameCanvas');
+    this.context = this.canvas.getContext('2d');
+
+    // Game constants
+    this.gameWidth = this.canvas.width;
+    this.gameHeight = this.canvas.height;
+    this.playerWidth = 40;
+    this.playerHeight = 30;
+    this.playerSpeed = 5;
+    this.bulletWidth = 5;
+    this.bulletHeight = 15;
+    this.bulletSpeed = 7;
+
     this.enemyWidth = 30;
     this.enemyHeight = 30;
     this.enemyPadding = 10;
     this.enemyOffsetTop = 50;
     this.enemyOffsetLeft = 50;
+
     this.enemyColumns = 10;
     this.baseEnemyRows = 5;
+=======
+    this.gameOverText = 'Game Over';
+    this.scoreText = 'Score: ';
+
+    // Entities
+    this.player = new Player(
+      this.gameWidth / 2 - this.playerWidth / 2,
+      this.gameHeight - this.playerHeight - 10,
+      this.playerWidth,
+      this.playerHeight,
+      this.playerSpeed,
+      '#00ff00'
+    );
+
+    this.bullet = new Bullet(
+      this.bulletWidth,
+      this.bulletHeight,
+      this.bulletSpeed,
+      '#ff0000'
+    );
+
+// Game initialization
+function init() {
+  // Set up the canvas and rendering context
+  const canvas = document.getElementById("gameCanvas");
+  const context = canvas.getContext("2d");
+  const bgCanvas = document.getElementById("bgCanvas");
+  const starfield = new Starfield(bgCanvas);
+
+  const styles = getComputedStyle(document.documentElement);
+  const COLOR_PRIMARY = styles.getPropertyValue("--color-primary").trim();
+  const COLOR_ACCENT = styles.getPropertyValue("--color-accent").trim();
+  const COLOR_BACKGROUND = styles
+    .getPropertyValue("--color-background")
+    .trim();
+=======
+
+  // Set canvas size to match the window
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+=======
+  const pauseOverlay = document.getElementById("pauseOverlay");
+
+  const canvasContainer = document.getElementById("canvas-container");
+  const startScreen = document.getElementById("start-screen");
+  const pauseScreen = document.getElementById("pause-screen");
+  const gameOverScreen = document.getElementById("game-over-screen");
+  const upgradeScreen = document.getElementById("upgrade-screen");
+  const startButton = document.getElementById("start-button");
+  const resumeButton = document.getElementById("resume-button");
+  const restartButton = document.getElementById("restart-button");
+  const upgradeClose = document.getElementById("upgrade-close");
+
+  // Define game constants
+  let gameWidth = canvas.width;
+  let gameHeight = canvas.height;
+  const playerWidth = 40;
+  const playerHeight = 30;
+  const playerSpeed = 5;
+  const bulletWidth = 5;
+  const bulletHeight = 15;
+  const bulletSpeed = 7;
+  const enemyWidth = 30;
+  const enemyHeight = 30;
+  const baseEnemyRowCount = 5;
+  const enemyColumnCount = 10;
+  const enemyPadding = 10;
+  const enemyOffsetTop = 50;
+  const enemyOffsetLeft = 50;
+  const gameOverText = "Game Over";
+
+  // Player object
+    const player = {
+      x: gameWidth / 2 - playerWidth / 2,
+      y: gameHeight - playerHeight - 10,
+      width: playerWidth,
+      height: playerHeight,
+      color: COLOR_PRIMARY,
+      isMovingLeft: false,
+      isMovingRight: false
+    };
+=======
+  const highScoreText = "High Score: ";
+=======
+  const livesText = "Lives: ";
+
+
+
+  const player = {
+    x: gameWidth / 2 - playerWidth / 2,
+    y: gameHeight - playerHeight - 10,
+    width: playerWidth,
+    height: playerHeight,
+    color: "#00ff00",
+    isMovingLeft: false,
+    isMovingRight: false,
+    lives: 3
+  };
+
+  // Bullet object
+    const bullet = {
+      x: 0,
+      y: 0,
+      width: bulletWidth,
+      height: bulletHeight,
+      color: COLOR_ACCENT,
+      isFired: false
+    };
+
+  // Enemy bullets
+  const enemyBullets = [];
+  const enemyBulletSpeed = 3;
+
+  // Active particle effects
+  const particles = [];
+
+  // Enemy objects
+  const enemies = [];
+  const enemySpeed = 1; // Speed of enemy movement
+  let enemyDirection = 1; // Direction of enemy movement
+  let enemyMoveDown = false; // Flag to indicate whether enemies should move down
+
+  for (let row = 0; row < enemyRowCount; row++) {
+    for (let col = 0; col < enemyColumnCount; col++) {
+      const enemy = {
+        x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
+        y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
+        width: enemyWidth,
+        height: enemyHeight,
+          color: COLOR_ACCENT,
+        isAlive: true
+      };
+      enemies.push(enemy);
+
+  const player = {
+    x: gameWidth / 2 - playerWidth / 2,
+    y: gameHeight - playerHeight - 10,
+    width: playerWidth,
+    height: playerHeight,
+    color: "#00ff00",
+    isMovingLeft: false,
+    isMovingRight: false
+  };
+
+  // Bullet object
+  const bullet = {
+    x: 0,
+    y: 0,
+    width: bulletWidth,
+    height: bulletHeight,
+    color: "#ff0000",
+    isFired: false
+  };
+
+  // Enemy objects
+  const enemies = [];
+  let enemySpeed = 1; // Speed of enemy movement
+  let enemyDirection = 1; // Direction of enemy movement
+  let enemyMoveDown = false; // Flag to indicate whether enemies should move down
+
+  function spawnEnemies(level) {
+    enemySpeed = 1 + (level - 1) * 0.5;
+    enemyDirection = 1;
+    enemies.length = 0;
+    const rows = baseEnemyRowCount + level - 1;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < enemyColumnCount; col++) {
+        const enemy = {
+          x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
+          y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
+          width: enemyWidth,
+          height: enemyHeight,
+          color: "#00ffff",
+          isAlive: true
+        };
+        enemies.push(enemy);
+=======
+
     this.enemies = [];
     this.enemySpeed = 1;
     this.enemyDirection = 1;
@@ -115,6 +315,7 @@ export default class Game {
     window.addEventListener('resize', this.handleResize);
   }
 
+
   handleResize() {
     this.canvas.width = this.gameWidth = window.innerWidth;
     this.canvas.height = this.gameHeight = window.innerHeight;
@@ -129,6 +330,25 @@ export default class Game {
       }
     }
   }
+=======
+=======
+  handleKeyDown(event) {
+    if (event.key === 'ArrowLeft') {
+      this.player.moveLeft();
+    } else if (event.key === 'ArrowRight') {
+      this.player.moveRight();
+
+  // Game variables
+  let gameOver = false;
+  let score = 0;
+  let highScore = 0;
+  let lives = 3;
+  let level = 1;
+
+  window.gameState = { score, highScore, lives, level };
+
+=======
+  let highScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
 
   start() {
     this.spawnEnemies();
@@ -344,16 +564,40 @@ export default class Game {
     this.particles.forEach((p) => p.draw(this.ctx));
     this.ctx.restore();
 
+
     this.player.draw(this.ctx);
     this.bullet.draw(this.ctx);
+=======
+    // Request next animation frame
+    updateHUD({ score, highScore, lives, level });
+    requestAnimationFrame(gameLoop);
+=======
+  start() {
+    this.gameLoop();
+  }
+}
+
 
     this.enemyBullets.forEach((b) => {
       this.ctx.fillStyle = b.color;
       this.ctx.fillRect(b.x, b.y, b.width, b.height);
     });
 
+
     this.enemies.forEach((enemy) => enemy.draw(this.ctx));
   }
+=======
+  // Start the game loop
+  updateHUD({ score, highScore, lives, level });
+  gameLoop();
+=======
+function startGame() {
+  document.getElementById("startOverlay").style.display = "none";
+  document.getElementById("gameOverOverlay").style.display = "none";
+  cancelAnimationFrame(animationId);
+  init();
+}
+
 
   loop() {
     if (!this.isPaused && !this.gameOver) {
@@ -363,4 +607,22 @@ export default class Game {
     requestAnimationFrame(() => this.loop());
   }
 }
+
+
+=======
+// Attach button handlers after page load
+window.onload = function () {
+  document
+    .getElementById("startButton")
+    .addEventListener("click", startGame);
+  document
+    .getElementById("restartButton")
+    .addEventListener("click", resetGame);
+=======
+window.onload = function () {
+  document.getElementById("startButton").addEventListener("click", () => {
+    document.getElementById("startScreen").classList.add("hidden");
+    init();
+  });
+};
 

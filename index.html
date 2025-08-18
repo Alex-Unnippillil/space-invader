@@ -2,11 +2,37 @@
 <html>
   <head>
     <title>Space Invaders</title>
+
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
     <canvas id="bgCanvas" width="800" height="600"></canvas>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+=======
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <div id="hud">
+        <div>Score: <span id="score">0</span></div>
+        <div>High Score: <span id="highScore">0</span></div>
+        <div>Lives: <span id="lives">3</span></div>
+        <div>Level: <span id="level">1</span></div>
+    </div>
+
+=======
+=======
+=======
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <canvas id="bgCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+=======
+    <canvas id="gameCanvas"></canvas>
+=======
 
     <div id="hud">
       <div>Score: <span id="score">0</span></div>
@@ -14,6 +40,11 @@
       <div>Lives: <span id="lives">3</span></div>
       <div>Level: <span id="level">1</span></div>
     </div>
+=======
+=======
+
+    <canvas id="bgCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <div id="startOverlay" class="overlay show">
       <button id="startButton">Start Game</button>
@@ -32,5 +63,42 @@
       // Start is triggered by Start button
     </script>
   </body>
+=======
+=======
+    <button id="leaderboardButton">Leaderboard</button>
+    <div id="leaderboardOverlay" class="overlay hidden">
+        <div class="leaderboard-content">
+            <h2>Leaderboard</h2>
+            <ol id="leaderboardList"></ol>
+            <button id="closeLeaderboard">Close</button>
+        </div>
+    </div>
+
+=======
+
+    <div id="mobileControls">
+        <button id="leftButton">Left</button>
+        <button id="shootButton">Shoot</button>
+        <button id="rightButton">Right</button>
+    </div>
+
+    <div id="pauseOverlay">
+        <h1>Paused</h1>
+        <p>Press P to resume</p>
+    </div>
+
+
+    <script src="starfield.js"></script>
+    <script type="module">
+        import Game from './game.js';
+        const game = new Game();
+        game.start();
+    </script>
+=======
+
+
+
+
+</body>
 </html>
 
