@@ -94,6 +94,8 @@ canvas {
     padding: 20px;
     border-radius: 5px;
     text-align: center;
+    color: var(--color-accent);
+    font-family: 'Press Start 2P', monospace;
 }
 
 @keyframes slide-down {
