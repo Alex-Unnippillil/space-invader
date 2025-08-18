@@ -1,3 +1,28 @@
+function showOverlay(id) {
+  document.getElementById(id).classList.add("show");
+}
+
+function hideOverlay(id) {
+  document.getElementById(id).classList.remove("show");
+}
+
+function startGame() {
+  hideOverlay("startOverlay");
+  init();
+}
+
+function resetGame() {
+  window.location.reload();
+}
+
+document.getElementById("startButton").addEventListener("click", startGame);
+document
+  .getElementById("restartButton")
+  .addEventListener("click", resetGame);
+document
+  .getElementById("playAgainButton")
+  .addEventListener("click", resetGame);
+=======
 
 let animationId;
 
@@ -480,9 +505,13 @@ function init() {
   updateEnemies() {
     let wallHit = false;
     let moveEnemiesDown = false;
+    let aliveCount = 0;
 
     this.enemies.forEach((enemy) => {
       if (enemy.isAlive) {
+        aliveCount++;
+        enemy.x += enemyDirection * enemySpeed;
+=======
         enemy.update(this.enemyDirection, this.enemySpeed);
 
         // Randomly shoot bullets
@@ -500,6 +529,8 @@ function init() {
         if (checkCollision(player, enemy)) {
           lives--;
           gameOver = true;
+          showOverlay("gameOverOverlay");
+=======
 
         if (this.checkCollision(this.player, enemy)) {
           this.gameOver = true;
@@ -534,6 +565,13 @@ function init() {
       }
     });
 
+    if (aliveCount === 0 && !gameOver) {
+      gameOver = true;
+      showOverlay("winOverlay");
+    }
+
+    // Move enemies down if they hit the wall
+=======
     if (wallHit) {
       this.enemyDirection *= -1;
       this.enemies.forEach((enemy) => enemy.moveDown(enemy.height));
@@ -734,6 +772,8 @@ function startGame() {
   init();
 }
 
+// Start screen displayed by default; game begins on button click.
+=======
 function resetGame() {
   document.getElementById("gameOverOverlay").style.display = "none";
   cancelAnimationFrame(animationId);
