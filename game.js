@@ -61,7 +61,11 @@ let animationId;
 import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
+
+import { updateHUD, saveScore, showLeaderboard } from './hud.js';
+=======
 import Starfield from './starfield.js';
+
 
 export default class Game {
   constructor() {
@@ -103,35 +107,6 @@ export default class Game {
       this.bulletSpeed,
       '#ff0000'
     );
-
-function saveScore(name, score) {
-  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-  data.push({ name, score });
-  data.sort((a, b) => b.score - a.score);
-  localStorage.setItem("leaderboard", JSON.stringify(data.slice(0, 5)));
-}
-
-function updateLeaderboard() {
-  const list = document.getElementById("leaderboardList");
-  if (!list) return;
-  list.innerHTML = "";
-  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-  data.slice(0, 5).forEach((entry) => {
-    const li = document.createElement("li");
-    li.textContent = `${entry.name}: ${entry.score}`;
-    list.appendChild(li);
-  });
-}
-
-function showLeaderboard() {
-  updateLeaderboard();
-  document.getElementById("leaderboardOverlay").classList.remove("hidden");
-}
-
-function hideLeaderboard() {
-  document.getElementById("leaderboardOverlay").classList.add("hidden");
-}
-
 
 // Game initialization
 function init() {
@@ -322,11 +297,6 @@ function init() {
     document.addEventListener('keydown', this.handleSpacebar);
   }
 
-  // HUD elements
-  const scoreEl = document.getElementById("score");
-  const highScoreEl = document.getElementById("highScore");
-  const livesEl = document.getElementById("lives");
-  const levelEl = document.getElementById("level");
 =======
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
@@ -343,16 +313,6 @@ function init() {
 
   window.gameState = { score, highScore, lives, level };
 
-  function updateHUD() {
-    scoreEl.textContent = score;
-    highScoreEl.textContent = highScore;
-    livesEl.textContent = lives;
-    levelEl.textContent = level;
-    window.gameState.score = score;
-    window.gameState.highScore = highScore;
-    window.gameState.lives = lives;
-    window.gameState.level = level;
-  }
 =======
   let highScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
 
@@ -836,7 +796,7 @@ function init() {
   }
 
     // Request next animation frame
-    updateHUD();
+    updateHUD({ score, highScore, lives, level });
     requestAnimationFrame(gameLoop);
 =======
   start() {
@@ -846,7 +806,7 @@ function init() {
 
 
   // Start the game loop
-  updateHUD();
+  updateHUD({ score, highScore, lives, level });
   gameLoop();
 =======
 function startGame() {
@@ -878,14 +838,5 @@ window.onload = function () {
     document.getElementById("startScreen").classList.add("hidden");
     init();
   });
-  document
-    .getElementById("leaderboardButton")
-    .addEventListener("click", showLeaderboard);
-  document
-    .getElementById("closeLeaderboard")
-    .addEventListener("click", hideLeaderboard);
-  updateLeaderboard();
-
-  
 };
 
