@@ -63,14 +63,14 @@ export function showLeaderboard() {
   updateLeaderboard();
   const overlay = document.getElementById('leaderboardOverlay');
   if (overlay) {
-    overlay.classList.remove('hidden');
+    overlay.classList.add('show');
   }
 }
 
 export function hideLeaderboard() {
   const overlay = document.getElementById('leaderboardOverlay');
   if (overlay) {
-    overlay.classList.add('hidden');
+    overlay.classList.remove('show');
   }
 }
 

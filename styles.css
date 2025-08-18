@@ -72,6 +72,13 @@ canvas {
     background-color: #00cc00;
 }
 
+.leaderboard-content {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
 @keyframes slide-down {
     from {
         transform: translateY(-100%);
