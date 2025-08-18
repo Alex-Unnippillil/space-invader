@@ -73,6 +73,46 @@ function init() {
   document.addEventListener("keyup", handleKeyUp);
   document.addEventListener("keydown", handleSpacebar);
 
+  const leftButton = document.getElementById("leftButton");
+  const rightButton = document.getElementById("rightButton");
+  const shootButton = document.getElementById("shootButton");
+
+  leftButton.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    player.isMovingLeft = true;
+  });
+  leftButton.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    player.isMovingLeft = false;
+  });
+  leftButton.addEventListener("touchcancel", () => {
+    player.isMovingLeft = false;
+  });
+
+  rightButton.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    player.isMovingRight = true;
+  });
+  rightButton.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    player.isMovingRight = false;
+  });
+  rightButton.addEventListener("touchcancel", () => {
+    player.isMovingRight = false;
+  });
+
+  shootButton.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (!bullet.isFired) {
+      bullet.isFired = true;
+      bullet.x = player.x + player.width / 2 - bullet.width / 2;
+      bullet.y = player.y - bullet.height;
+    }
+  });
+  shootButton.addEventListener("touchend", (e) => {
+    e.preventDefault();
+  });
+
   function handleKeyDown(event) {
     if (event.key === "ArrowLeft") {
       player.isMovingLeft = true;

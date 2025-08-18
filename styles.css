@@ -11,3 +11,28 @@ canvas {
     display: block;
     margin: 0 auto;
 }
+
+#mobileControls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+}
+
+#mobileControls button {
+    width: 60px;
+    height: 60px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+@media (min-width: 768px) {
+    #mobileControls {
+        display: none;
+    }
+}
