@@ -82,6 +82,11 @@ function init() {
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
 
+
+  // Set canvas size to match the window
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+=======
   const pauseOverlay = document.getElementById("pauseOverlay");
 
   const canvasContainer = document.getElementById("canvas-container");
@@ -94,10 +99,9 @@ function init() {
   const restartButton = document.getElementById("restart-button");
   const upgradeClose = document.getElementById("upgrade-close");
 
-
   // Define game constants
-  const gameWidth = canvas.width;
-  const gameHeight = canvas.height;
+  let gameWidth = canvas.width;
+  let gameHeight = canvas.height;
   const playerWidth = 40;
   const playerHeight = 30;
   const playerSpeed = 5;
@@ -262,6 +266,9 @@ function init() {
   document.addEventListener("keyup", handleKeyUp);
 
   document.addEventListener("keydown", handleSpacebar);
+
+  window.addEventListener("resize", handleResize);
+=======
   document.addEventListener("keydown", handlePause);
 
 
@@ -359,7 +366,22 @@ function init() {
     }
   }
 
+  function handleResize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    gameWidth = canvas.width;
+    gameHeight = canvas.height;
+    player.y = gameHeight - player.height - 10;
+    if (player.x + player.width > gameWidth) {
+      player.x = gameWidth - player.width;
+    }
+  }
+
+  // Check collision between two objects
+  function checkCollision(obj1, obj2) {
+=======
   checkCollision(obj1, obj2) {
+
     return (
       obj1.x < obj2.x + obj2.width &&
       obj1.x + obj1.width > obj2.x &&
