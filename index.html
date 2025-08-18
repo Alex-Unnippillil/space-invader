@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
   <title>Space Invaders</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" href="styles.css">
+=======
+  <link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
 <body>
   <div id="gameContainer">
@@ -14,6 +17,7 @@
       <div>High Score: <span id="highScore">0</span></div>
       <div>Lives: <span id="lives">3</span></div>
       <div>Level: <span id="level">1</span></div>
+      <button id="leaderboardButton">Leaderboard</button>
     </div>
 
     <canvas id="bgCanvas" width="800" height="600"></canvas>
@@ -21,7 +25,6 @@
 
     <div id="startOverlay" class="overlay show">
       <h1>Space Invaders</h1>
-      <p>Use arrow keys to move and space bar to shoot.</p>
       <button id="startButton">Start Game</button>
     </div>
 
@@ -40,7 +43,6 @@
       <p>Press P to resume</p>
     </div>
 
-    <button id="leaderboardButton">Leaderboard</button>
     <div id="leaderboardOverlay" class="overlay hidden">
       <div class="leaderboard-content">
         <h2>Leaderboard</h2>
@@ -57,10 +59,16 @@
   </div>
 
   <script src="starfield.js"></script>
+=======
   <script type="module">
     import Game from './game.js';
     import { initGameUI } from './ui.js';
 
+    const game = new Game();
+    document.addEventListener('DOMContentLoaded', () => initGameUI(game));
+  </script>
+=======
+=======
     const game = new Game();
     document.addEventListener('DOMContentLoaded', () => initGameUI(game));
   </script>

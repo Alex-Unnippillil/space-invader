@@ -7,6 +7,7 @@ function initGameUI(game) {
   const restartButton = document.getElementById('restartButton');
   const playAgainButton = document.getElementById('playAgainButton');
 
+=======
   if (startButton) startButton.addEventListener('click', () => game.start());
   if (restartButton) restartButton.addEventListener('click', () => game.reset());
   if (playAgainButton)
