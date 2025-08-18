@@ -31,6 +31,9 @@ function init() {
   // Set up the canvas and rendering context
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
+
+  const pauseOverlay = document.getElementById("pauseOverlay");
+
   const canvasContainer = document.getElementById("canvas-container");
   const startScreen = document.getElementById("start-screen");
   const pauseScreen = document.getElementById("pause-screen");
@@ -40,6 +43,7 @@ function init() {
   const resumeButton = document.getElementById("resume-button");
   const restartButton = document.getElementById("restart-button");
   const upgradeClose = document.getElementById("upgrade-close");
+
 
   // Define game constants
   const gameWidth = canvas.width;
@@ -101,11 +105,20 @@ function init() {
     }
   }
 
-
+  // Game variables
+  let gameOver = false;
+  let score = 0;
+  let isPaused = false;
+=======
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
+
+  document.addEventListener("keydown", handleSpacebar);
+  document.addEventListener("keydown", handlePause);
+=======
+
 
   startButton.addEventListener("click", startGame);
   resumeButton.addEventListener("click", resumeGame);
@@ -184,6 +197,13 @@ function init() {
     }
   }
 
+  function handlePause(event) {
+    if (event.key === "p" || event.key === "P") {
+      isPaused = !isPaused;
+      pauseOverlay.style.display = isPaused ? "flex" : "none";
+    }
+  }
+
   // Check collision between two objects
   function checkCollision(obj1, obj2) {
     return (
@@ -255,6 +275,11 @@ function init() {
 
   // Game loop
   function gameLoop() {
+    if (isPaused) {
+      requestAnimationFrame(gameLoop);
+      return;
+    }
+
     // Update game state
 
 
