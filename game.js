@@ -9,6 +9,24 @@ import {
   hideLeaderboard
 } from './hud.js';
 
+// Game configuration constants
+const PLAYER_WIDTH = 40;
+const PLAYER_HEIGHT = 30;
+const PLAYER_SPEED = 5;
+
+const BULLET_WIDTH = 5;
+const BULLET_HEIGHT = 15;
+const BULLET_SPEED = 7;
+
+const ENEMY_WIDTH = 30;
+const ENEMY_HEIGHT = 30;
+const ENEMY_ROWS = 5;
+const ENEMY_COLUMNS = 10;
+const ENEMY_PADDING = 10;
+const ENEMY_OFFSET_TOP = 50;
+const ENEMY_OFFSET_LEFT = 50;
+const ENEMY_BASE_SPEED = 1;
+
 // Overlay helpers
 export function showOverlay(id) {
   const el = document.getElementById(id);
@@ -22,6 +40,11 @@ export function hideOverlay(id) {
 
 export default class Game {
   constructor() {
+    this.canvas = document.getElementById('gameCanvas');
+    this.context = this.canvas.getContext('2d');
+    const bgCanvas = document.getElementById('bgCanvas');
+    if (bgCanvas) this.starfield = new Starfield(bgCanvas);
+=======
     // Canvas and starfield
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
@@ -31,6 +54,25 @@ export default class Game {
     this.gameWidth = this.canvas.width;
     this.gameHeight = this.canvas.height;
 
+    this.player = new Player(
+      this.gameWidth / 2 - PLAYER_WIDTH / 2,
+      this.gameHeight - PLAYER_HEIGHT - 10,
+      PLAYER_WIDTH,
+      PLAYER_HEIGHT,
+      PLAYER_SPEED,
+      '#00ff00'
+    );
+
+    this.bullet = new Bullet(
+      BULLET_WIDTH,
+      BULLET_HEIGHT,
+      BULLET_SPEED,
+      '#ff0000'
+    );
+
+    this.enemies = [];
+    this.enemySpeed = ENEMY_BASE_SPEED;
+=======
     // Colors
     const styles = getComputedStyle(document.documentElement);
     this.primaryColor =
@@ -68,6 +110,7 @@ export default class Game {
     this.highScore = parseInt(localStorage.getItem('highScore'), 10) || 0;
     this.lives = 3;
     this.level = 1;
+    this.isPaused = false;
     this.gameOver = false;
     this.paused = false;
     this.lastTime = 0;
@@ -85,6 +128,16 @@ export default class Game {
       lives: this.lives,
       level: this.level
     });
+    this.gameLoop();
+  }
+
+  reset() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keyup', this.handleKeyUp);
+    this.enemies = [];
+    this.enemyDirection = 1;
+    this.enemySpeed = ENEMY_BASE_SPEED;
+=======
   }
 
   start() {
@@ -103,6 +156,8 @@ export default class Game {
     this.lives = 3;
     this.level = 1;
     this.gameOver = false;
+    this.gameWon = false;
+=======
     this.paused = false;
 
     this.spawnEnemies();
@@ -113,6 +168,16 @@ export default class Game {
       lives: this.lives,
       level: this.level
     });
+  }
+
+  spawnEnemies() {
+    for (let row = 0; row < ENEMY_ROWS; row++) {
+      for (let col = 0; col < ENEMY_COLUMNS; col++) {
+        const x = col * (ENEMY_WIDTH + ENEMY_PADDING) + ENEMY_OFFSET_LEFT;
+        const y = row * (ENEMY_HEIGHT + ENEMY_PADDING) + ENEMY_OFFSET_TOP;
+        this.enemies.push(
+          new Enemy(x, y, ENEMY_WIDTH, ENEMY_HEIGHT, '#00ffff')
+=======
     this.start();
   }
 
@@ -134,6 +199,17 @@ export default class Game {
     if (e.code === 'KeyP') this.togglePause();
   }
 
+  handleKeyDown(event) {
+    if (event.key === 'ArrowLeft') {
+      this.player.moveLeft();
+    } else if (event.key === 'ArrowRight') {
+      this.player.moveRight();
+    } else if (event.key === ' ' || event.key === 'Spacebar') {
+      if (!this.bullet.isFired) {
+        const startX = this.player.x + this.player.width / 2;
+        const startY = this.player.y;
+        this.bullet.fire(startX, startY);
+=======
   handleKeyUp(e) {
     if (e.code === 'ArrowLeft') this.player.stopLeft();
     if (e.code === 'ArrowRight') this.player.stopRight();
@@ -187,6 +263,8 @@ export default class Game {
           new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
         );
       }
+    } else if (event.key.toLowerCase() === 'p') {
+      this.togglePause();
     }
   }
 
@@ -199,6 +277,18 @@ export default class Game {
       this.emitPlayerParticles();
     }
 
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      showOverlay('pauseOverlay');
+    } else {
+      hideOverlay('pauseOverlay');
+    }
+  }
+
+  update() {
+    if (this.starfield) this.starfield.update();
+=======
     this.player.update(this.gameWidth);
     this.bullet.update();
 
@@ -212,6 +302,10 @@ export default class Game {
 
     if (hitEdge) {
       this.enemyDirection *= -1;
+      for (const enemy of this.enemies) {
+        enemy.moveDown(ENEMY_HEIGHT);
+      }
+=======
       this.enemies.forEach((e) => e.moveDown(this.enemyHeight));
     }
 
@@ -272,6 +366,11 @@ export default class Game {
   }
 
   gameLoop() {
+    if (!this.isPaused) {
+      this.update();
+      this.draw();
+    }
+=======
     this.update();
     this.draw();
       if (!this.gameOver) {
@@ -293,9 +392,13 @@ export default class Game {
       const overlayId = this.gameWon ? 'winOverlay' : 'gameOverOverlay';
       showOverlay(overlayId);
       saveScore('Player', this.score);
-
       showLeaderboard();
     }
+  }
+}
+
+let currentGame;
+=======
 =======
       updateLeaderboard();
     }
@@ -367,6 +470,8 @@ function startGame() {
   hideOverlay('startOverlay');
   hideOverlay('gameOverOverlay');
   hideOverlay('winOverlay');
+  hideOverlay('pauseOverlay');
+=======
   init();
 }
 
@@ -384,7 +489,6 @@ function resetGame() {
   currentGame.start();
 }
 
-
 function resetGame() {
   startGame();
 }
@@ -398,6 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (playAgainButton) playAgainButton.addEventListener('click', resetGame);
 });
 
+=======
   loop(timestamp) {
     const delta = timestamp - this.lastTime;
     this.lastTime = timestamp;
