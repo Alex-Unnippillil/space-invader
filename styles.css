@@ -11,6 +11,13 @@ body {
     background-color: var(--color-background);
 }
 
+#gameContainer {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+}
+
 /* Canvas */
 canvas {
     position: absolute;
@@ -25,6 +32,8 @@ canvas {
 
 #gameCanvas {
     z-index: 1;
+    width: 100vw;
+    height: 100vh;
 }
 
 /* Overlay */
@@ -53,6 +62,14 @@ canvas {
     visibility: visible;
 }
 
+#gameOverOverlay {
+    display: none;
+}
+
+#gameOverOverlay.show {
+    display: flex;
+}
+
 .overlay.slide {
     animation: slide-down 0.5s forwards;
 }
@@ -70,6 +87,13 @@ canvas {
 
 .overlay button:hover {
     background-color: #00cc00;
+}
+
+.leaderboard-content {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
 }
 
 @keyframes slide-down {
