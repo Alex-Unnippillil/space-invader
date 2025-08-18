@@ -1,4 +1,4 @@
-class Starfield {
+export default class Starfield {
   constructor(canvas, numStars = 100) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -38,6 +38,3 @@ class Starfield {
     });
   }
 }
-
-// Export for usage in game.js
-window.Starfield = Starfield;
