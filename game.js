@@ -715,9 +715,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const startButton = document.getElementById('startButton');
   const restartButton = document.getElementById('restartButton');
   const playAgainButton = document.getElementById('playAgainButton');
+  const leaderboardButton = document.getElementById('leaderboardButton');
+  const closeLeaderboard = document.getElementById('closeLeaderboard');
   if (startButton) startButton.addEventListener('click', startGame);
   if (restartButton) restartButton.addEventListener('click', resetGame);
   if (playAgainButton) playAgainButton.addEventListener('click', resetGame);
+  if (leaderboardButton)
+    leaderboardButton.addEventListener('click', showLeaderboard);
+  if (closeLeaderboard)
+    closeLeaderboard.addEventListener('click', hideLeaderboard);
 });
 
 =======
@@ -734,17 +740,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 =======
-
-
-=======
-// Attach button handlers after page load
-window.onload = function () {
-  document
-    .getElementById("startButton")
-    .addEventListener("click", startGame);
-  document
-    .getElementById("restartButton")
-    .addEventListener("click", resetGame);
-};
-
-
