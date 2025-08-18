@@ -113,7 +113,11 @@ function init() {
   const enemyOffsetLeft = 50;
   const gameOverText = "Game Over";
   const scoreText = "Score: ";
+
+  const highScoreText = "High Score: ";
+=======
   const livesText = "Lives: ";
+
 
 
   const player = {
@@ -244,6 +248,7 @@ function init() {
   // Game variables
   let gameOver = false;
   let score = 0;
+  let highScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
 
   let level = 1;
 
@@ -398,9 +403,19 @@ function init() {
 
         if (this.bullet.isFired && this.checkCollision(this.bullet, enemy)) {
           enemy.isAlive = false;
+
+          bullet.isFired = false;
+          score++;
+          if (score > highScore) {
+            highScore = score;
+            localStorage.setItem("highScore", highScore);
+          }
+          playSound("explosion.wav");
+
           this.bullet.isFired = false;
           this.score++;
           this.playSound('explosion.wav');
+
         }
 
         if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
@@ -519,6 +534,13 @@ function init() {
     // Draw score
     context.fillStyle = "#ffffff";
     context.font = "20px Arial";
+
+    context.fillText(
+      `${scoreText}${score} ${highScoreText}${highScore}`,
+      10,
+      30
+    );
+
     context.fillText(scoreText + score, 10, 30);
     context.fillText(livesText + player.lives, 10, 55);
 
