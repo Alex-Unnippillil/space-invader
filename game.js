@@ -1,3 +1,33 @@
+// Particle class for thruster and bullet trails
+class Particle {
+  constructor(x, y, vx, vy, lifespan, color) {
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.vy = vy;
+    this.lifespan = lifespan;
+    this.remaining = lifespan;
+    // color should be a string in the form "r,g,b"
+    this.color = color;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.remaining--;
+  }
+
+  draw(ctx) {
+    const alpha = this.remaining / this.lifespan;
+    ctx.fillStyle = `rgba(${this.color}, ${alpha})`;
+    ctx.fillRect(this.x, this.y, 2, 2);
+  }
+
+  isAlive() {
+    return this.remaining > 0;
+  }
+}
+
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
@@ -43,6 +73,9 @@ function init() {
     color: "#ff0000",
     isFired: false
   };
+
+  // Active particle effects
+  const particles = [];
 
   // Enemy objects
   const enemies = [];
@@ -97,6 +130,23 @@ function init() {
         bullet.y = player.y - bullet.height;
       }
     }
+  }
+
+  // Particle emission helpers
+  function emitPlayerParticle() {
+    const x = player.x + player.width / 2;
+    const y = player.y + player.height;
+    const vx = (Math.random() - 0.5) * 1;
+    const vy = Math.random() * 1 + 1;
+    particles.push(new Particle(x, y, vx, vy, 30, "255,165,0"));
+  }
+
+  function emitBulletParticle() {
+    const x = bullet.x + bullet.width / 2;
+    const y = bullet.y + bullet.height;
+    const vx = (Math.random() - 0.5) * 0.5;
+    const vy = Math.random() * 1 + 1;
+    particles.push(new Particle(x, y, vx, vy, 20, "255,255,255"));
   }
 
   // Check collision between two objects
@@ -178,8 +228,13 @@ function init() {
         player.x += playerSpeed;
       }
 
+      if (player.isMovingLeft || player.isMovingRight) {
+        emitPlayerParticle();
+      }
+
       if (bullet.isFired) {
         bullet.y -= bulletSpeed;
+        emitBulletParticle();
         if (bullet.y < 0) {
           bullet.isFired = false;
         }
@@ -188,8 +243,23 @@ function init() {
       updateEnemies();
     }
 
+    // Update and cull particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.update();
+      if (!p.isAlive()) {
+        particles.splice(i, 1);
+      }
+    }
+
     // Clear the canvas
     context.clearRect(0, 0, gameWidth, gameHeight);
+
+    // Draw particles with additive blending for glow
+    context.save();
+    context.globalCompositeOperation = "lighter";
+    particles.forEach((p) => p.draw(context));
+    context.restore();
 
     // Draw player
     context.fillStyle = player.color;
