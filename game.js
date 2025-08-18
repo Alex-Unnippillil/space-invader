@@ -61,7 +61,11 @@ let animationId;
 import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
+
 import { updateHUD, saveScore, showLeaderboard } from './hud.js';
+=======
+import Starfield from './starfield.js';
+
 
 export default class Game {
   constructor() {
