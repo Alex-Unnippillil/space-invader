@@ -14,8 +14,10 @@ function initHUD() {
   leaderboardList = document.getElementById('leaderboardList');
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
-  if (leaderboardButton) leaderboardButton.addEventListener('click', showLeaderboard);
-  if (closeLeaderboard) closeLeaderboard.addEventListener('click', hideLeaderboard);
+  if (leaderboardButton)
+    leaderboardButton.addEventListener('click', showLeaderboard);
+  if (closeLeaderboard)
+    closeLeaderboard.addEventListener('click', hideLeaderboard);
   updateLeaderboard();
 }
 
@@ -48,11 +50,11 @@ function updateLeaderboard() {
 
 function showLeaderboard() {
   updateLeaderboard();
-  if (leaderboardOverlay) leaderboardOverlay.classList.remove('hidden');
+  if (leaderboardOverlay) leaderboardOverlay.classList.add('show');
 }
 
 function hideLeaderboard() {
-  if (leaderboardOverlay) leaderboardOverlay.classList.add('hidden');
+  if (leaderboardOverlay) leaderboardOverlay.classList.remove('show');
 }
 
 export { updateHUD, saveScore, showLeaderboard, hideLeaderboard };
