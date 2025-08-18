@@ -157,7 +157,7 @@ canvas {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
+    display: none;
     gap: 20px;
 }
 
@@ -171,9 +171,23 @@ canvas {
     color: #ffffff;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
     #mobileControls {
-        display: none;
+        display: flex;
+    }
+    #hud {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    #mobileControls button {
+        width: 50px;
+        height: 50px;
+        font-size: 14px;
+    }
+    #hud {
+        font-size: 10px;
     }
 }
 

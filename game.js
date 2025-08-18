@@ -62,6 +62,24 @@ import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
 
+// Keep the canvas sized to the current window dimensions
+function adjustCanvasSize() {
+  const gameCanvas = document.getElementById('gameCanvas');
+  const bgCanvas = document.getElementById('bgCanvas');
+  if (gameCanvas) {
+    gameCanvas.width = window.innerWidth;
+    gameCanvas.height = window.innerHeight;
+  }
+  if (bgCanvas) {
+    bgCanvas.width = window.innerWidth;
+    bgCanvas.height = window.innerHeight;
+  }
+}
+
+window.addEventListener('load', adjustCanvasSize);
+window.addEventListener('resize', adjustCanvasSize);
+adjustCanvasSize();
+
 export default class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
@@ -148,10 +166,6 @@ function init() {
     .trim();
 =======
 
-  // Set canvas size to match the window
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-=======
   const pauseOverlay = document.getElementById("pauseOverlay");
 
   const canvasContainer = document.getElementById("canvas-container");
@@ -425,31 +439,31 @@ function init() {
   const rightButton = document.getElementById("rightButton");
   const shootButton = document.getElementById("shootButton");
 
-  leftButton.addEventListener("touchstart", (e) => {
+  leftButton.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     player.isMovingLeft = true;
   });
-  leftButton.addEventListener("touchend", (e) => {
+  leftButton.addEventListener("pointerup", (e) => {
     e.preventDefault();
     player.isMovingLeft = false;
   });
-  leftButton.addEventListener("touchcancel", () => {
+  leftButton.addEventListener("pointerleave", () => {
     player.isMovingLeft = false;
   });
 
-  rightButton.addEventListener("touchstart", (e) => {
+  rightButton.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     player.isMovingRight = true;
   });
-  rightButton.addEventListener("touchend", (e) => {
+  rightButton.addEventListener("pointerup", (e) => {
     e.preventDefault();
     player.isMovingRight = false;
   });
-  rightButton.addEventListener("touchcancel", () => {
+  rightButton.addEventListener("pointerleave", () => {
     player.isMovingRight = false;
   });
 
-  shootButton.addEventListener("touchstart", (e) => {
+  shootButton.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     if (!bullet.isFired) {
       bullet.isFired = true;
@@ -457,7 +471,7 @@ function init() {
       bullet.y = player.y - bullet.height;
     }
   });
-  shootButton.addEventListener("touchend", (e) => {
+  shootButton.addEventListener("pointerup", (e) => {
     e.preventDefault();
   });
 
