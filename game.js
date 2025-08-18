@@ -1,3 +1,4 @@
+
 import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
@@ -43,6 +44,73 @@ export default class Game {
       '#ff0000'
     );
 
+function saveScore(name, score) {
+  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+  data.push({ name, score });
+  data.sort((a, b) => b.score - a.score);
+  localStorage.setItem("leaderboard", JSON.stringify(data.slice(0, 5)));
+}
+
+function updateLeaderboard() {
+  const list = document.getElementById("leaderboardList");
+  if (!list) return;
+  list.innerHTML = "";
+  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+  data.slice(0, 5).forEach((entry) => {
+    const li = document.createElement("li");
+    li.textContent = `${entry.name}: ${entry.score}`;
+    list.appendChild(li);
+  });
+}
+
+function showLeaderboard() {
+  updateLeaderboard();
+  document.getElementById("leaderboardOverlay").classList.remove("hidden");
+}
+
+function hideLeaderboard() {
+  document.getElementById("leaderboardOverlay").classList.add("hidden");
+}
+
+// Game initialization
+function init() {
+  // Set up the canvas and rendering context
+  const canvas = document.getElementById("gameCanvas");
+  const context = canvas.getContext("2d");
+
+  const pauseOverlay = document.getElementById("pauseOverlay");
+
+  const canvasContainer = document.getElementById("canvas-container");
+  const startScreen = document.getElementById("start-screen");
+  const pauseScreen = document.getElementById("pause-screen");
+  const gameOverScreen = document.getElementById("game-over-screen");
+  const upgradeScreen = document.getElementById("upgrade-screen");
+  const startButton = document.getElementById("start-button");
+  const resumeButton = document.getElementById("resume-button");
+  const restartButton = document.getElementById("restart-button");
+  const upgradeClose = document.getElementById("upgrade-close");
+
+
+  // Define game constants
+  const gameWidth = canvas.width;
+  const gameHeight = canvas.height;
+  const playerWidth = 40;
+  const playerHeight = 30;
+  const playerSpeed = 5;
+  const bulletWidth = 5;
+  const bulletHeight = 15;
+  const bulletSpeed = 7;
+  const enemyWidth = 30;
+  const enemyHeight = 30;
+  const enemyRowCount = 5;
+  const enemyColumnCount = 10;
+  const enemyPadding = 10;
+  const enemyOffsetTop = 50;
+  const enemyOffsetLeft = 50;
+  const gameOverText = "Game Over";
+  const scoreText = "Score: ";
+
+
     this.enemies = [];
     this.enemySpeed = 1;
     this.enemyDirection = 1;
@@ -78,6 +146,88 @@ export default class Game {
       this.player.moveLeft();
     } else if (event.key === 'ArrowRight') {
       this.player.moveRight();
+
+  // Game variables
+  let gameOver = false;
+  let score = 0;
+  let isPaused = false;
+
+  // Event listeners for player controls
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("keyup", handleKeyUp);
+
+  document.addEventListener("keydown", handleSpacebar);
+  document.addEventListener("keydown", handlePause);
+
+
+
+  startButton.addEventListener("click", startGame);
+  resumeButton.addEventListener("click", resumeGame);
+  restartButton.addEventListener("click", () => location.reload());
+  upgradeClose.addEventListener("click", hideUpgrade);
+
+  function startGame() {
+    startScreen.classList.remove("active");
+    canvasContainer.classList.add("active");
+    gameState = "playing";
+  }
+
+  function pauseGame() {
+    if (gameState === "playing") {
+      gameState = "paused";
+      pauseScreen.classList.add("active");
+    }
+  }
+
+  function resumeGame() {
+    if (gameState === "paused") {
+      gameState = "playing";
+      pauseScreen.classList.remove("active");
+    }
+  }
+
+  function showUpgrade() {
+    if (gameState === "playing") {
+      gameState = "upgrade";
+      upgradeScreen.classList.add("active");
+      upgradeScreen.classList.add("slide");
+    }
+  }
+
+  function hideUpgrade() {
+    if (gameState === "upgrade") {
+      gameState = "playing";
+      upgradeScreen.classList.remove("active");
+      upgradeScreen.classList.remove("slide");
+    }
+  }
+
+  function showGameOver() {
+    canvasContainer.classList.remove("active");
+    gameState = "gameOver";
+    gameOverScreen.classList.add("active");
+  }
+
+  function handleKeyDown(event) {
+    if (gameState === "playing") {
+      if (event.key === "ArrowLeft") {
+        player.isMovingLeft = true;
+      } else if (event.key === "ArrowRight") {
+        player.isMovingRight = true;
+      } else if (event.key === " " && !bullet.isFired) {
+        bullet.isFired = true;
+        bullet.x = player.x + player.width / 2 - bullet.width / 2;
+        bullet.y = player.y - bullet.height;
+      } else if (event.key === "p") {
+        pauseGame();
+      } else if (event.key === "u") {
+        showUpgrade();
+      }
+    } else if (gameState === "paused" && event.key === "p") {
+      resumeGame();
+    } else if (gameState === "upgrade" && event.key === "u") {
+      hideUpgrade();
+
     }
   }
 
@@ -95,6 +245,12 @@ export default class Game {
         this.player.x + this.player.width / 2,
         this.player.y
       );
+
+  function handlePause(event) {
+    if (event.key === "p" || event.key === "P") {
+      isPaused = !isPaused;
+      pauseOverlay.style.display = isPaused ? "flex" : "none";
+
     }
   }
 
@@ -150,14 +306,43 @@ export default class Game {
       this.enemies.forEach((enemy) => enemy.moveDown(enemy.height));
     }
   }
-
-  update() {
+{
     if (!this.gameOver) {
       this.player.update(this.gameWidth);
       this.bullet.update();
       this.updateEnemies();
     }
   }
+
+  // Game loop
+  function gameLoop() {
+    if (isPaused) {
+      requestAnimationFrame(gameLoop);
+      return;
+    }
+
+    // Update game state
+
+
+        if (bullet.isFired) {
+          bullet.y -= bulletSpeed;
+          if (bullet.y < 0) {
+            bullet.isFired = false;
+          }
+        }
+
+        updateEnemies();
+      } else if (!gameOverHandled) {
+        gameOverHandled = true;
+        setTimeout(() => {
+          const name = prompt("Game over! Enter your name:");
+          if (name) {
+            saveScore(name, score);
+          }
+          showLeaderboard();
+        }, 0);
+      }
+
 
   draw() {
     this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
@@ -177,6 +362,20 @@ export default class Game {
       if (this.score >= 50) {
         const congratulatoryText = 'Congratulations!';
         const congratulatoryTextWidth = this.context.measureText(
+
+    if (gameOver && gameState !== "gameOver") {
+      showGameOver();
+    }
+
+    // Draw game over or congratulatory message
+    if (gameState === "gameOver") {
+      context.fillStyle = "#ff0000";
+      context.font = "50px Arial";
+      const gameOverTextWidth = context.measureText(gameOverText).width;
+      if (score >= 50) {
+        const congratulatoryText = "Congratulations!";
+        const congratulatoryTextWidth = context.measureText(
+
           congratulatoryText
         ).width;
         this.context.fillText(
@@ -209,3 +408,18 @@ export default class Game {
     this.gameLoop();
   }
 }
+
+window.onload = function () {
+  document.getElementById("startButton").addEventListener("click", () => {
+    document.getElementById("startScreen").classList.add("hidden");
+    init();
+  });
+  document
+    .getElementById("leaderboardButton")
+    .addEventListener("click", showLeaderboard);
+  document
+    .getElementById("closeLeaderboard")
+    .addEventListener("click", hideLeaderboard);
+  updateLeaderboard();
+};
+
