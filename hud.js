@@ -13,7 +13,6 @@ function initHUD() {
   leaderboardOverlay = document.getElementById('leaderboardOverlay');
   leaderboardList = document.getElementById('leaderboardList');
 
-=======
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
   if (leaderboardButton)
@@ -58,4 +57,11 @@ function hideLeaderboard() {
   if (leaderboardOverlay) leaderboardOverlay.classList.remove('show');
 }
 
-export { initHUD, updateHUD, saveScore, showLeaderboard, hideLeaderboard };
+export {
+  initHUD,
+  updateHUD,
+  saveScore,
+  updateLeaderboard,
+  showLeaderboard,
+  hideLeaderboard,
+};
