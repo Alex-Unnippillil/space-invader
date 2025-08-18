@@ -113,6 +113,51 @@ function init() {
   const enemyOffsetLeft = 50;
   const gameOverText = "Game Over";
   const scoreText = "Score: ";
+  const livesText = "Lives: ";
+
+
+  const player = {
+    x: gameWidth / 2 - playerWidth / 2,
+    y: gameHeight - playerHeight - 10,
+    width: playerWidth,
+    height: playerHeight,
+    color: "#00ff00",
+    isMovingLeft: false,
+    isMovingRight: false,
+    lives: 3
+  };
+
+  // Bullet object
+  const bullet = {
+    x: 0,
+    y: 0,
+    width: bulletWidth,
+    height: bulletHeight,
+    color: "#ff0000",
+    isFired: false
+  };
+
+  // Enemy bullets
+  const enemyBullets = [];
+  const enemyBulletSpeed = 3;
+
+  // Enemy objects
+  const enemies = [];
+  const enemySpeed = 1; // Speed of enemy movement
+  let enemyDirection = 1; // Direction of enemy movement
+  let enemyMoveDown = false; // Flag to indicate whether enemies should move down
+
+  for (let row = 0; row < enemyRowCount; row++) {
+    for (let col = 0; col < enemyColumnCount; col++) {
+      const enemy = {
+        x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
+        y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
+        width: enemyWidth,
+        height: enemyHeight,
+        color: "#00ffff",
+        isAlive: true
+      };
+      enemies.push(enemy);
 
   const player = {
     x: gameWidth / 2 - playerWidth / 2,
@@ -173,6 +218,7 @@ function init() {
         );
 
       }
+
     }
 
     // Game variables
@@ -330,8 +376,24 @@ function init() {
       if (enemy.isAlive) {
         enemy.update(this.enemyDirection, this.enemySpeed);
 
+        // Randomly shoot bullets
+        if (Math.random() < 0.002) {
+          enemyBullets.push({
+            x: enemy.x + enemy.width / 2 - bulletWidth / 2,
+            y: enemy.y + enemy.height,
+            width: bulletWidth,
+            height: bulletHeight,
+            color: "#ffff00",
+          });
+        }
+
+        // Check collision with player
+        if (checkCollision(player, enemy)) {
+          gameOver = true;
+
         if (this.checkCollision(this.player, enemy)) {
           this.gameOver = true;
+
         }
 
         if (this.bullet.isFired && this.checkCollision(this.bullet, enemy)) {
@@ -399,9 +461,25 @@ function init() {
 
 
       updateEnemies();
+
+      // Update enemy bullets
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const eBullet = enemyBullets[i];
+        eBullet.y += enemyBulletSpeed;
+        if (checkCollision(eBullet, player)) {
+          enemyBullets.splice(i, 1);
+          player.lives--;
+          if (player.lives <= 0) {
+            gameOver = true;
+          }
+        } else if (eBullet.y > gameHeight) {
+          enemyBullets.splice(i, 1);
+        }
+
       if (enemies.every((enemy) => !enemy.isAlive)) {
         level++;
         spawnEnemies(level);
+
       }
     }
 
@@ -416,6 +494,33 @@ function init() {
     this.context.fillStyle = '#ffffff';
     this.context.font = '20px Arial';
     this.context.fillText(this.scoreText + this.score, 10, 30);
+
+
+    // Draw enemy bullets
+    enemyBullets.forEach((enemyBullet) => {
+      context.fillStyle = enemyBullet.color;
+      context.fillRect(
+        enemyBullet.x,
+        enemyBullet.y,
+        enemyBullet.width,
+        enemyBullet.height
+      );
+    });
+
+    // Draw enemies
+    enemies.forEach((enemy) => {
+      if (enemy.isAlive) {
+        // Draw enemy shape
+        context.fillStyle = enemy.color;
+        context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+      }
+    });
+
+    // Draw score
+    context.fillStyle = "#ffffff";
+    context.font = "20px Arial";
+    context.fillText(scoreText + score, 10, 30);
+    context.fillText(livesText + player.lives, 10, 55);
 
     if (this.gameOver) {
       this.context.fillStyle = '#ff0000';
@@ -434,6 +539,7 @@ function init() {
     if (gameOver && gameState !== "gameOver") {
       showGameOver();
     }
+
 
     // Draw game over or congratulatory message
     if (gameState === "gameOver") {
