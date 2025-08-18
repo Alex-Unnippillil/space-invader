@@ -1,3 +1,31 @@
+function saveScore(name, score) {
+  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+  data.push({ name, score });
+  data.sort((a, b) => b.score - a.score);
+  localStorage.setItem("leaderboard", JSON.stringify(data.slice(0, 5)));
+}
+
+function updateLeaderboard() {
+  const list = document.getElementById("leaderboardList");
+  if (!list) return;
+  list.innerHTML = "";
+  const data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+  data.slice(0, 5).forEach((entry) => {
+    const li = document.createElement("li");
+    li.textContent = `${entry.name}: ${entry.score}`;
+    list.appendChild(li);
+  });
+}
+
+function showLeaderboard() {
+  updateLeaderboard();
+  document.getElementById("leaderboardOverlay").classList.remove("hidden");
+}
+
+function hideLeaderboard() {
+  document.getElementById("leaderboardOverlay").classList.add("hidden");
+}
+
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
@@ -65,8 +93,9 @@ function init() {
   }
 
   // Game variables
-  let gameOver = false;
-  let score = 0;
+    let gameOver = false;
+    let gameOverHandled = false;
+    let score = 0;
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
@@ -171,22 +200,31 @@ function init() {
   // Game loop
   function gameLoop() {
     // Update game state
-    if (!gameOver) {
-      if (player.isMovingLeft) {
-        player.x -= playerSpeed;
-      } else if (player.isMovingRight) {
-        player.x += playerSpeed;
-      }
-
-      if (bullet.isFired) {
-        bullet.y -= bulletSpeed;
-        if (bullet.y < 0) {
-          bullet.isFired = false;
+      if (!gameOver) {
+        if (player.isMovingLeft) {
+          player.x -= playerSpeed;
+        } else if (player.isMovingRight) {
+          player.x += playerSpeed;
         }
-      }
 
-      updateEnemies();
-    }
+        if (bullet.isFired) {
+          bullet.y -= bulletSpeed;
+          if (bullet.y < 0) {
+            bullet.isFired = false;
+          }
+        }
+
+        updateEnemies();
+      } else if (!gameOverHandled) {
+        gameOverHandled = true;
+        setTimeout(() => {
+          const name = prompt("Game over! Enter your name:");
+          if (name) {
+            saveScore(name, score);
+          }
+          showLeaderboard();
+        }, 0);
+      }
 
     // Clear the canvas
     context.clearRect(0, 0, gameWidth, gameHeight);
@@ -252,8 +290,17 @@ function init() {
   gameLoop();
 }
 
-// Start the game after the page has loaded
 window.onload = function () {
-  init();
+  document.getElementById("startButton").addEventListener("click", () => {
+    document.getElementById("startScreen").classList.add("hidden");
+    init();
+  });
+  document
+    .getElementById("leaderboardButton")
+    .addEventListener("click", showLeaderboard);
+  document
+    .getElementById("closeLeaderboard")
+    .addEventListener("click", hideLeaderboard);
+  updateLeaderboard();
 };
 
