@@ -1,13 +1,31 @@
-
+:root {
+    --color-primary: #00ff00;
+    --color-accent: #ff0000;
+    --color-background: #000000;
+}
 
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    background-color: var(--color-background);
 }
 
 canvas {
-    background-color: #000000;
+    background-color: var(--color-background);
     display: block;
     margin: 0 auto;
+}
+
+.hud,
+.overlay {
+    font-family: 'Press Start 2P', monospace;
+}
+
+.hud {
+    color: var(--color-primary);
+}
+
+.overlay {
+    color: var(--color-accent);
 }

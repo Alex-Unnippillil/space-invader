@@ -4,6 +4,13 @@ function init() {
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
 
+  const styles = getComputedStyle(document.documentElement);
+  const COLOR_PRIMARY = styles.getPropertyValue("--color-primary").trim();
+  const COLOR_ACCENT = styles.getPropertyValue("--color-accent").trim();
+  const COLOR_BACKGROUND = styles
+    .getPropertyValue("--color-background")
+    .trim();
+
   // Define game constants
   const gameWidth = canvas.width;
   const gameHeight = canvas.height;
@@ -24,25 +31,25 @@ function init() {
   const scoreText = "Score: ";
 
   // Player object
-  const player = {
-    x: gameWidth / 2 - playerWidth / 2,
-    y: gameHeight - playerHeight - 10,
-    width: playerWidth,
-    height: playerHeight,
-    color: "#00ff00",
-    isMovingLeft: false,
-    isMovingRight: false
-  };
+    const player = {
+      x: gameWidth / 2 - playerWidth / 2,
+      y: gameHeight - playerHeight - 10,
+      width: playerWidth,
+      height: playerHeight,
+      color: COLOR_PRIMARY,
+      isMovingLeft: false,
+      isMovingRight: false
+    };
 
   // Bullet object
-  const bullet = {
-    x: 0,
-    y: 0,
-    width: bulletWidth,
-    height: bulletHeight,
-    color: "#ff0000",
-    isFired: false
-  };
+    const bullet = {
+      x: 0,
+      y: 0,
+      width: bulletWidth,
+      height: bulletHeight,
+      color: COLOR_ACCENT,
+      isFired: false
+    };
 
   // Enemy objects
   const enemies = [];
@@ -57,7 +64,7 @@ function init() {
         y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
         width: enemyWidth,
         height: enemyHeight,
-        color: "#00ffff",
+          color: COLOR_ACCENT,
         isAlive: true
       };
       enemies.push(enemy);
