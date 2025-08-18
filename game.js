@@ -216,16 +216,6 @@ function init() {
 =======
   const pauseOverlay = document.getElementById("pauseOverlay");
 
-  const canvasContainer = document.getElementById("canvas-container");
-  const startScreen = document.getElementById("start-screen");
-  const pauseScreen = document.getElementById("pause-screen");
-  const gameOverScreen = document.getElementById("game-over-screen");
-  const upgradeScreen = document.getElementById("upgrade-screen");
-  const startButton = document.getElementById("start-button");
-  const resumeButton = document.getElementById("resume-button");
-  const restartButton = document.getElementById("restart-button");
-  const upgradeClose = document.getElementById("upgrade-close");
-
   // Define game constants
   let gameWidth = canvas.width;
   let gameHeight = canvas.height;
@@ -384,15 +374,6 @@ function init() {
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.handlePause = this.handlePause.bind(this);
     this.handleResize = this.handleResize.bind(this);
-
-    // UI buttons
-    document
-      .getElementById('startButton')
-      ?.addEventListener('click', () => this.start());
-    document
-      .getElementById('restartButton')
-      ?.addEventListener('click', () => this.reset());
-
     window.addEventListener('resize', this.handleResize);
   }
 
@@ -772,20 +753,5 @@ function startGame() {
 
 
 =======
-// Attach button handlers after page load
-window.onload = function () {
-  document
-    .getElementById("startButton")
-    .addEventListener("click", startGame);
-  document
-    .getElementById("restartButton")
-    .addEventListener("click", resetGame);
-=======
-window.onload = function () {
-  document.getElementById("startButton").addEventListener("click", () => {
-    document.getElementById("startScreen").classList.add("hidden");
-    init();
-  });
-};
 
 

@@ -144,8 +144,10 @@
     <script src="starfield.js"></script>
     <script type="module">
         import Game from './game.js';
+        import { initGameUI } from './ui.js';
+
         const game = new Game();
-        game.start();
+        document.addEventListener('DOMContentLoaded', () => initGameUI(game));
     </script>
 
 </body>
