@@ -15,7 +15,7 @@ function init() {
   const bulletSpeed = 7;
   const enemyWidth = 30;
   const enemyHeight = 30;
-  const enemyRowCount = 5;
+  const baseEnemyRowCount = 5;
   const enemyColumnCount = 10;
   const enemyPadding = 10;
   const enemyOffsetTop = 50;
@@ -46,27 +46,36 @@ function init() {
 
   // Enemy objects
   const enemies = [];
-  const enemySpeed = 1; // Speed of enemy movement
+  let enemySpeed = 1; // Speed of enemy movement
   let enemyDirection = 1; // Direction of enemy movement
   let enemyMoveDown = false; // Flag to indicate whether enemies should move down
 
-  for (let row = 0; row < enemyRowCount; row++) {
-    for (let col = 0; col < enemyColumnCount; col++) {
-      const enemy = {
-        x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
-        y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
-        width: enemyWidth,
-        height: enemyHeight,
-        color: "#00ffff",
-        isAlive: true
-      };
-      enemies.push(enemy);
+  function spawnEnemies(level) {
+    enemySpeed = 1 + (level - 1) * 0.5;
+    enemyDirection = 1;
+    enemies.length = 0;
+    const rows = baseEnemyRowCount + level - 1;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < enemyColumnCount; col++) {
+        const enemy = {
+          x: col * (enemyWidth + enemyPadding) + enemyOffsetLeft,
+          y: row * (enemyHeight + enemyPadding) + enemyOffsetTop,
+          width: enemyWidth,
+          height: enemyHeight,
+          color: "#00ffff",
+          isAlive: true
+        };
+        enemies.push(enemy);
+      }
     }
   }
 
   // Game variables
   let gameOver = false;
   let score = 0;
+  let level = 1;
+
+  spawnEnemies(level);
 
   // Event listeners for player controls
   document.addEventListener("keydown", handleKeyDown);
@@ -186,6 +195,10 @@ function init() {
       }
 
       updateEnemies();
+      if (enemies.every((enemy) => !enemy.isAlive)) {
+        level++;
+        spawnEnemies(level);
+      }
     }
 
     // Clear the canvas
@@ -210,10 +223,10 @@ function init() {
       }
     });
 
-    // Draw score
+    // Draw score and level
     context.fillStyle = "#ffffff";
     context.font = "20px Arial";
-    context.fillText(scoreText + score, 10, 30);
+    context.fillText(`${scoreText}${score} Level: ${level}`, 10, 30);
 
     // Draw game over or congratulatory message
     if (gameOver) {
