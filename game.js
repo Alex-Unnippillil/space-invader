@@ -206,6 +206,10 @@ function init() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
+=======
+  const pauseOverlay = document.getElementById("pauseOverlay");
+=======
+
   // Define game constants
   let gameWidth = canvas.width;
   let gameHeight = canvas.height;
@@ -361,15 +365,6 @@ function init() {
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.handlePause = this.handlePause.bind(this);
     this.handleResize = this.handleResize.bind(this);
-
-    // UI buttons
-    document
-      .getElementById('startButton')
-      ?.addEventListener('click', () => this.start());
-    document
-      .getElementById('restartButton')
-      ?.addEventListener('click', () => this.reset());
-
     window.addEventListener('resize', this.handleResize);
   }
 
@@ -730,6 +725,22 @@ function startGame() {
   init();
 }
 
+
+
+  loop() {
+    if (!this.isPaused && !this.gameOver) {
+      this.update();
+      this.draw();
+    }
+    requestAnimationFrame(() => this.loop());
+  }
+}
+
+
+=======
+
+
+=======
 // Attach button handlers after page load
 window.onload = function () {
   document
@@ -739,3 +750,5 @@ window.onload = function () {
     .getElementById("restartButton")
     .addEventListener("click", resetGame);
 };
+
+    

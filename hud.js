@@ -12,16 +12,17 @@ function initHUD() {
   levelEl = document.getElementById('level');
   leaderboardOverlay = document.getElementById('leaderboardOverlay');
   leaderboardList = document.getElementById('leaderboardList');
+
+=======
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
   if (leaderboardButton)
     leaderboardButton.addEventListener('click', showLeaderboard);
   if (closeLeaderboard)
     closeLeaderboard.addEventListener('click', hideLeaderboard);
+
   updateLeaderboard();
 }
-
-document.addEventListener('DOMContentLoaded', initHUD);
 
 function updateHUD({ score, highScore, lives, level }) {
   if (scoreEl) scoreEl.textContent = score;
@@ -57,4 +58,4 @@ function hideLeaderboard() {
   if (leaderboardOverlay) leaderboardOverlay.classList.remove('show');
 }
 
-export { updateHUD, saveScore, showLeaderboard, hideLeaderboard };
+export { initHUD, updateHUD, saveScore, showLeaderboard, hideLeaderboard };
