@@ -2,10 +2,37 @@
 <html>
 <head>
     <title>Space Invaders</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+
+    <div id="gameContainer">
+        <div id="startOverlay" class="overlay">
+            <button id="startButton">Start Game</button>
+        </div>
+        <div id="gameOverOverlay" class="overlay">
+            <div>Game Over</div>
+            <button id="restartButton">Restart</button>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+=======
+
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script type="module">
+      import Game from './game.js';
+      const game = new Game();
+      game.start();
+    </script>
+
+    <div id="pauseOverlay">
+        <h1>Paused</h1>
+        <p>Press P to resume</p>
+    </div>
+
+
     <script src="game.js"></script>
+
 </body>
 </html>
