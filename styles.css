@@ -8,6 +8,15 @@ body {
 
 canvas {
     background-color: #000000;
-    display: block;
-    margin: 0 auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#bgCanvas {
+    z-index: 0;
+}
+
+#gameCanvas {
+    z-index: 1;
 }

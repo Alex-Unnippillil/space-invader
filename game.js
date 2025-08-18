@@ -3,6 +3,8 @@ function init() {
   // Set up the canvas and rendering context
   const canvas = document.getElementById("gameCanvas");
   const context = canvas.getContext("2d");
+  const bgCanvas = document.getElementById("bgCanvas");
+  const starfield = new Starfield(bgCanvas);
 
   // Define game constants
   const gameWidth = canvas.width;
@@ -170,6 +172,8 @@ function init() {
 
   // Game loop
   function gameLoop() {
+    starfield.update();
+    starfield.draw();
     // Update game state
     if (!gameOver) {
       if (player.isMovingLeft) {
