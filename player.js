@@ -8,6 +8,7 @@ export default class Player {
     this.color = color;
     this.isMovingLeft = false;
     this.isMovingRight = false;
+    this.shield = false;
   }
 
   moveLeft() {
@@ -44,5 +45,10 @@ export default class Player {
   draw(context) {
     context.fillStyle = this.color;
     context.fillRect(this.x, this.y, this.width, this.height);
+    if (this.shield) {
+      context.strokeStyle = '#00ffff';
+      context.lineWidth = 3;
+      context.strokeRect(this.x - 2, this.y - 2, this.width + 4, this.height + 4);
+    }
   }
 }
