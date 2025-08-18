@@ -2,50 +2,23 @@ import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
 
+=======
+
 import Starfield from './starfield.js';
+import { updateHUD, saveScore, showLeaderboard, hideLeaderboard } from './hud.js';
 
-// Particle used for thruster and bullet trails
-class Particle {
-  constructor(x, y, vx, vy, lifespan, color) {
-    this.x = x;
-    this.y = y;
-    this.vx = vx;
-    this.vy = vy;
-    this.lifespan = lifespan;
-    this.remaining = lifespan;
-    // color string "r,g,b"
-    this.color = color;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.remaining--;
-  }
-
-
-// Overlay and leaderboard helpers
+// Overlay helpers
 export function showOverlay(id) {
   const el = document.getElementById(id);
-  if (el) {
-    el.classList.add('show');
-  }
+  if (el) el.classList.add('show');
 }
 
 export function hideOverlay(id) {
   const el = document.getElementById(id);
-  if (el) {
-    el.classList.remove('show');
-  }
+  if (el) el.classList.remove('show');
 }
 
-export function saveScore(name, score) {
-  const data = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-  data.push({ name, score });
-  data.sort((a, b) => b.score - a.score);
-  localStorage.setItem('leaderboard', JSON.stringify(data.slice(0, 5)));
-}
-
+=======
 export function updateLeaderboard() {
   const list = document.getElementById('leaderboardList');
   if (!list) return;
@@ -112,6 +85,8 @@ export default class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
     this.context = this.canvas.getContext('2d');
+    const bgCanvas = document.getElementById('bgCanvas');
+    if (bgCanvas) this.starfield = new Starfield(bgCanvas);
 
     // Game constants
     this.gameWidth = this.canvas.width;
@@ -122,19 +97,21 @@ export default class Game {
     this.bulletWidth = 5;
     this.bulletHeight = 15;
     this.bulletSpeed = 7;
-
     this.enemyWidth = 30;
     this.enemyHeight = 30;
+    this.enemyRowCount = 5;
+    this.enemyColumnCount = 10;
     this.enemyPadding = 10;
     this.enemyOffsetTop = 50;
     this.enemyOffsetLeft = 50;
 
 
+=======
+
     this.enemyColumns = 10;
     this.baseEnemyRows = 5;
     this.gameOverText = 'Game Over';
     this.scoreText = 'Score: ';
-
 
     // Entities
     this.player = new Player(
@@ -145,7 +122,6 @@ export default class Game {
       this.playerSpeed,
       '#00ff00'
     );
-
     this.bullet = new Bullet(
       this.bulletWidth,
       this.bulletHeight,
@@ -159,20 +135,33 @@ export default class Game {
     this.spawnEnemies();
 
     // Game state
-    this.gameOver = false;
     this.score = 0;
+    this.highScore = parseInt(localStorage.getItem('highScore'), 10) || 0;
+    this.lives = 3;
+    this.level = 1;
+    this.gameOver = false;
+    this.gameWon = false;
 
     // Input handlers
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
   }
 
   start() {
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+    updateHUD({
+      score: this.score,
+      highScore: this.highScore,
+      lives: this.lives,
+      level: this.level
+    });
     this.gameLoop();
   }
-
+  reset() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keyup', this.handleKeyUp);
+=======
   spawnEnemies() {
     for (let row = 0; row < this.enemyRowCount; row++) {
       for (let col = 0; col < this.enemyColumnCount; col++) {
@@ -333,21 +322,21 @@ function init() {
         enemies.push(enemy);
 
     this.enemies = [];
-    this.enemySpeed = 1;
     this.enemyDirection = 1;
-    this.enemyBullets = [];
-    this.enemyBulletSpeed = 3;
-
-    // Particle effects
-    this.particles = [];
-
-    // Game state
+    this.enemySpeed = 1;
+    this.bullet.isFired = false;
+    this.spawnEnemies();
     this.score = 0;
-    this.highScore = parseInt(localStorage.getItem('highScore'), 10) || 0;
-    this.lives = 3;
-    this.level = 1;
-    this.isPaused = false;
     this.gameOver = false;
+
+    this.gameWon = false;
+    updateHUD({
+      score: this.score,
+      highScore: this.highScore,
+      lives: this.lives,
+      level: this.level
+    });
+=======
 
     // HUD elements
     this.scoreEl = document.getElementById('score');
@@ -366,20 +355,17 @@ function init() {
     this.handlePause = this.handlePause.bind(this);
     this.handleResize = this.handleResize.bind(this);
     window.addEventListener('resize', this.handleResize);
+
   }
 
-
-  handleResize() {
-    this.canvas.width = this.gameWidth = window.innerWidth;
-    this.canvas.height = this.gameHeight = window.innerHeight;
-    if (this.bgCanvas) {
-      this.bgCanvas.width = window.innerWidth;
-      this.bgCanvas.height = window.innerHeight;
-    }
-    if (this.player) {
-      this.player.y = this.gameHeight - this.player.height - 10;
-      if (this.player.x + this.player.width > this.gameWidth) {
-        this.player.x = this.gameWidth - this.player.width;
+  spawnEnemies() {
+    for (let row = 0; row < this.enemyRowCount; row++) {
+      for (let col = 0; col < this.enemyColumnCount; col++) {
+        const x = col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
+        const y = row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
+        this.enemies.push(
+          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
+        );
       }
     }
   }
@@ -389,12 +375,13 @@ function init() {
       this.player.moveLeft();
     } else if (event.key === 'ArrowRight') {
       this.player.moveRight();
-
     } else if (event.key === ' ' || event.key === 'Spacebar') {
       if (!this.bullet.isFired) {
         const startX = this.player.x + this.player.width / 2;
         const startY = this.player.y;
         this.bullet.fire(startX, startY);
+
+=======
 
   // Game variables
   let gameOver = false;
@@ -426,60 +413,28 @@ function init() {
       this.isPaused = !this.isPaused;
       if (this.pauseOverlay) {
         this.pauseOverlay.style.display = this.isPaused ? 'flex' : 'none';
+
+        
       }
     }
   }
 
-  handleKeyDown(e) {
-    if (e.key === 'ArrowLeft') {
-      this.player.moveLeft();
-    } else if (e.key === 'ArrowRight') {
-      this.player.moveRight();
-    } else if (e.key === ' ' && !this.bullet.isFired) {
-      this.bullet.fire(this.player.x + this.player.width / 2, this.player.y);
-      this.emitBulletParticles();
-    }
-  }
-
-  handleKeyUp(e) {
-    if (e.key === 'ArrowLeft') {
+  handleKeyUp(event) {
+    if (event.key === 'ArrowLeft') {
       this.player.stopLeft();
-    } else if (e.key === 'ArrowRight') {
+    } else if (event.key === 'ArrowRight') {
       this.player.stopRight();
     }
   }
 
-  spawnEnemies() {
-    this.enemies = [];
-    this.enemySpeed = 1 + (this.level - 1) * 0.5;
-    for (let row = 0; row < this.baseEnemyRows + this.level - 1; row++) {
-      for (let col = 0; col < this.enemyColumns; col++) {
-        const x =
-          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
-        const y =
-          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
-        this.enemies.push(
-          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
-        );
-
-      }
-    }
-  }
-
-  updateHUD() {
-    if (this.scoreEl) this.scoreEl.textContent = this.score;
-    if (this.highScoreEl) this.highScoreEl.textContent = this.highScore;
-    if (this.livesEl) this.livesEl.textContent = this.lives;
-    if (this.levelEl) this.levelEl.textContent = this.level;
-  }
-
-
   update() {
+    if (this.starfield) this.starfield.update();
     this.player.update(this.gameWidth);
     this.bullet.update();
 
     let moveDown = false;
     for (const enemy of this.enemies) {
+      if (!enemy.isAlive) continue;
       enemy.update(this.enemyDirection, this.enemySpeed);
       if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
         moveDown = true;
@@ -504,6 +459,16 @@ function init() {
           enemy.isAlive = false;
           this.bullet.isFired = false;
           this.score += 10;
+          if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem('highScore', this.highScore);
+          }
+          updateHUD({
+            score: this.score,
+            highScore: this.highScore,
+            lives: this.lives,
+            level: this.level
+          });
         }
       }
     }
@@ -511,24 +476,24 @@ function init() {
     for (const enemy of this.enemies) {
       if (enemy.isAlive && enemy.y + enemy.height >= this.player.y) {
         this.gameOver = true;
+        this.gameWon = false;
       }
     }
 
     if (this.enemies.every((e) => !e.isAlive)) {
       this.gameOver = true;
+      this.gameWon = true;
     }
   }
 
   draw() {
+    if (this.starfield) this.starfield.draw();
     this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
     this.player.draw(this.context);
     this.bullet.draw(this.context);
     for (const enemy of this.enemies) {
       enemy.draw(this.context);
     }
-    this.context.fillStyle = '#fff';
-    this.context.font = '20px sans-serif';
-    this.context.fillText(`Score: ${this.score}`, 10, 20);
   }
 
   gameLoop() {
@@ -537,8 +502,13 @@ function init() {
     if (!this.gameOver) {
       requestAnimationFrame(() => this.gameLoop());
     } else {
-      showOverlay('gameOverOverlay');
+      const overlayId = this.gameWon ? 'winOverlay' : 'gameOverOverlay';
+      showOverlay(overlayId);
       saveScore('Player', this.score);
+
+      showLeaderboard();
+    }
+=======
       updateLeaderboard();
     }
   }
@@ -701,10 +671,14 @@ function init() {
     requestAnimationFrame(gameLoop);
   start() {
     this.gameLoop();
+
   }
 }
 
+let currentGame;
 
+
+=======
     this.enemyBullets.forEach((b) => {
       this.ctx.fillStyle = b.color;
       this.ctx.fillRect(b.x, b.y, b.width, b.height);
@@ -718,13 +692,35 @@ function init() {
   gameLoop();
 }
 
+
 function startGame() {
-  document.getElementById("startOverlay").style.display = "none";
-  document.getElementById("gameOverOverlay").style.display = "none";
-  cancelAnimationFrame(animationId);
-  init();
+  hideOverlay('startOverlay');
+  hideOverlay('gameOverOverlay');
+  hideOverlay('winOverlay');
+  hideLeaderboard();
+  if (!currentGame) {
+    currentGame = new Game();
+  } else {
+    currentGame.reset();
+  }
+  currentGame.start();
 }
 
+
+function resetGame() {
+  startGame();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const startButton = document.getElementById('startButton');
+  const restartButton = document.getElementById('restartButton');
+  const playAgainButton = document.getElementById('playAgainButton');
+  if (startButton) startButton.addEventListener('click', startGame);
+  if (restartButton) restartButton.addEventListener('click', resetGame);
+  if (playAgainButton) playAgainButton.addEventListener('click', resetGame);
+});
+
+=======
 
 
   loop() {
@@ -751,4 +747,4 @@ window.onload = function () {
     .addEventListener("click", resetGame);
 };
 
-    
+
