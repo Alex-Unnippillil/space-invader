@@ -1,6 +1,8 @@
 import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
+
+=======
 import Starfield from './starfield.js';
 
 // Particle used for thruster and bullet trails
@@ -22,17 +24,57 @@ class Particle {
     this.remaining--;
   }
 
-  draw(ctx) {
-    const alpha = this.remaining / this.lifespan;
-    ctx.fillStyle = `rgba(${this.color}, ${alpha})`;
-    ctx.fillRect(this.x, this.y, 2, 2);
-  }
 
-  isAlive() {
-    return this.remaining > 0;
+// Overlay and leaderboard helpers
+export function showOverlay(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('show');
   }
 }
 
+export function hideOverlay(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.remove('show');
+  }
+}
+
+export function saveScore(name, score) {
+  const data = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+  data.push({ name, score });
+  data.sort((a, b) => b.score - a.score);
+  localStorage.setItem('leaderboard', JSON.stringify(data.slice(0, 5)));
+}
+
+export function updateLeaderboard() {
+  const list = document.getElementById('leaderboardList');
+  if (!list) return;
+  list.innerHTML = '';
+  const data = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+  data.slice(0, 5).forEach((entry) => {
+    const li = document.createElement('li');
+    li.textContent = `${entry.name}: ${entry.score}`;
+    list.appendChild(li);
+  });
+}
+
+export function showLeaderboard() {
+  updateLeaderboard();
+  const overlay = document.getElementById('leaderboardOverlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+  }
+}
+
+export function hideLeaderboard() {
+  const overlay = document.getElementById('leaderboardOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+  }
+}
+
+=======
 export default class Game {
   constructor() {
     // Canvas and background starfield
@@ -69,6 +111,7 @@ import { updateHUD, saveScore, showLeaderboard } from './hud.js';
 import Starfield from './starfield.js';
 
 
+
 export default class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
@@ -90,11 +133,14 @@ export default class Game {
     this.enemyOffsetTop = 50;
     this.enemyOffsetLeft = 50;
 
+=======
+
     this.enemyColumns = 10;
     this.baseEnemyRows = 5;
 =======
     this.gameOverText = 'Game Over';
     this.scoreText = 'Score: ';
+
 
     // Entities
     this.player = new Player(
@@ -113,6 +159,41 @@ export default class Game {
       '#ff0000'
     );
 
+    this.enemies = [];
+    this.enemySpeed = 1;
+    this.enemyDirection = 1;
+    this.spawnEnemies();
+
+    // Game state
+    this.gameOver = false;
+    this.score = 0;
+
+    // Input handlers
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+  }
+
+  start() {
+    this.gameLoop();
+  }
+
+  spawnEnemies() {
+    for (let row = 0; row < this.enemyRowCount; row++) {
+      for (let col = 0; col < this.enemyColumnCount; col++) {
+        const x =
+          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
+        const y =
+          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
+        this.enemies.push(
+          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
+        );
+      }
+    }
+  }
+
+=======
 // Game initialization
 function init() {
   // Set up the canvas and rendering context
@@ -332,11 +413,19 @@ function init() {
   }
 =======
 =======
+
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
       this.player.moveLeft();
     } else if (event.key === 'ArrowRight') {
       this.player.moveRight();
+
+    } else if (event.key === ' ' || event.key === 'Spacebar') {
+      if (!this.bullet.isFired) {
+        const startX = this.player.x + this.player.width / 2;
+        const startY = this.player.y;
+        this.bullet.fire(startX, startY);
+=======
 
   // Game variables
   let gameOver = false;
@@ -404,6 +493,7 @@ function init() {
         this.enemies.push(
           new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
         );
+
       }
     }
   }
@@ -415,6 +505,78 @@ function init() {
     if (this.levelEl) this.levelEl.textContent = this.level;
   }
 
+
+  update() {
+    this.player.update(this.gameWidth);
+    this.bullet.update();
+
+    let moveDown = false;
+    for (const enemy of this.enemies) {
+      enemy.update(this.enemyDirection, this.enemySpeed);
+      if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
+        moveDown = true;
+      }
+    }
+    if (moveDown) {
+      this.enemyDirection *= -1;
+      for (const enemy of this.enemies) {
+        enemy.moveDown(this.enemyHeight);
+      }
+    }
+
+    if (this.bullet.isFired) {
+      for (const enemy of this.enemies) {
+        if (
+          enemy.isAlive &&
+          this.bullet.x < enemy.x + enemy.width &&
+          this.bullet.x + this.bullet.width > enemy.x &&
+          this.bullet.y < enemy.y + enemy.height &&
+          this.bullet.y + this.bullet.height > enemy.y
+        ) {
+          enemy.isAlive = false;
+          this.bullet.isFired = false;
+          this.score += 10;
+        }
+      }
+    }
+
+    for (const enemy of this.enemies) {
+      if (enemy.isAlive && enemy.y + enemy.height >= this.player.y) {
+        this.gameOver = true;
+      }
+    }
+
+    if (this.enemies.every((e) => !e.isAlive)) {
+      this.gameOver = true;
+    }
+  }
+
+  draw() {
+    this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
+    this.player.draw(this.context);
+    this.bullet.draw(this.context);
+    for (const enemy of this.enemies) {
+      enemy.draw(this.context);
+    }
+    this.context.fillStyle = '#fff';
+    this.context.font = '20px sans-serif';
+    this.context.fillText(`Score: ${this.score}`, 10, 20);
+  }
+
+  gameLoop() {
+    this.update();
+    this.draw();
+    if (!this.gameOver) {
+      requestAnimationFrame(() => this.gameLoop());
+    } else {
+      showOverlay('gameOverOverlay');
+      saveScore('Player', this.score);
+      updateLeaderboard();
+    }
+  }
+}
+
+=======
   emitPlayerParticles() {
     const color = '0,255,0';
     for (let i = 0; i < 3; i++) {
@@ -625,4 +787,5 @@ window.onload = function () {
     init();
   });
 };
+
 
