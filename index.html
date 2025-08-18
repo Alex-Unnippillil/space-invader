@@ -2,12 +2,56 @@
 <html>
 <head>
     <title>Space Invaders</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles.css">
+=======
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
     <canvas id="bgCanvas" width="800" height="600"></canvas>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <script src="starfield.js"></script>
+=======
+    <canvas id="gameCanvas"></canvas>
+=======
+
+    <div id="gameContainer">
+        <div id="startOverlay" class="overlay">
+            <button id="startButton">Start Game</button>
+        </div>
+        <div id="gameOverOverlay" class="overlay">
+            <div>Game Over</div>
+            <button id="restartButton">Restart</button>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+=======
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <div id="mobileControls">
+        <button id="leftButton">Left</button>
+        <button id="shootButton">Shoot</button>
+        <button id="rightButton">Right</button>
+    </div>
+=======
+
+    <script type="module">
+      import Game from './game.js';
+      const game = new Game();
+      game.start();
+    </script>
+
+    <div id="pauseOverlay">
+        <h1>Paused</h1>
+        <p>Press P to resume</p>
+    </div>
+
+
+
     <script src="game.js"></script>
+
 </body>
 </html>
