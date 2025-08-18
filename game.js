@@ -5,7 +5,7 @@ import Enemy from './enemy.js';
 =======
 
 import Starfield from './starfield.js';
-import { updateHUD, saveScore, showLeaderboard, hideLeaderboard } from './hud.js';
+import { initHUD, updateHUD, saveScore, showLeaderboard, hideLeaderboard } from './hud.js';
 
 // Overlay helpers
 export function showOverlay(id) {
@@ -399,7 +399,6 @@ function init() {
     this.updateHUD();
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
-    document.addEventListener('keydown', this.handlePause);
     this.startOverlay?.classList.remove('show');
     this.loop();
   }
@@ -711,40 +710,51 @@ function resetGame() {
   startGame();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initGameUI() {
+  initHUD();
+
   const startButton = document.getElementById('startButton');
   const restartButton = document.getElementById('restartButton');
   const playAgainButton = document.getElementById('playAgainButton');
+  const leaderboardButton = document.getElementById('leaderboardButton');
+  const closeLeaderboard = document.getElementById('closeLeaderboard');
+  const leftButton = document.getElementById('leftButton');
+  const rightButton = document.getElementById('rightButton');
+  const shootButton = document.getElementById('shootButton');
+
   if (startButton) startButton.addEventListener('click', startGame);
   if (restartButton) restartButton.addEventListener('click', resetGame);
   if (playAgainButton) playAgainButton.addEventListener('click', resetGame);
-});
+  if (leaderboardButton) leaderboardButton.addEventListener('click', showLeaderboard);
+  if (closeLeaderboard) closeLeaderboard.addEventListener('click', hideLeaderboard);
 
-=======
-
-
-  loop() {
-    if (!this.isPaused && !this.gameOver) {
-      this.update();
-      this.draw();
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'p' || e.key === 'P') && currentGame) {
+      currentGame.handlePause(e);
     }
-    requestAnimationFrame(() => this.loop());
+  });
+
+  if (leftButton) {
+    leftButton.addEventListener('touchstart', () => currentGame && currentGame.player.moveLeft());
+    leftButton.addEventListener('touchend', () => currentGame && currentGame.player.stopLeft());
+  }
+
+  if (rightButton) {
+    rightButton.addEventListener('touchstart', () => currentGame && currentGame.player.moveRight());
+    rightButton.addEventListener('touchend', () => currentGame && currentGame.player.stopRight());
+  }
+
+  if (shootButton) {
+    shootButton.addEventListener('touchstart', () => {
+      if (currentGame && !currentGame.bullet.isFired) {
+        const startX = currentGame.player.x + currentGame.player.width / 2;
+        const startY = currentGame.player.y;
+        currentGame.bullet.fire(startX, startY);
+      }
+    });
   }
 }
 
-
-=======
-
-
-=======
-// Attach button handlers after page load
-window.onload = function () {
-  document
-    .getElementById("startButton")
-    .addEventListener("click", startGame);
-  document
-    .getElementById("restartButton")
-    .addEventListener("click", resetGame);
-};
+document.addEventListener('DOMContentLoaded', initGameUI);
 
 
