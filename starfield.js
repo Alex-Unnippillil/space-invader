@@ -10,6 +10,13 @@ export default class Starfield {
     }
   }
 
+  resize(width, height) {
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.width = width;
+    this.height = height;
+  }
+
   createStar() {
     return {
       x: Math.random() * this.width,

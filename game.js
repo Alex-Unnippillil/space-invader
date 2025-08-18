@@ -370,6 +370,20 @@ function init() {
     }
   }
 
+  handleResize() {
+    this.gameWidth = window.innerWidth;
+    this.gameHeight = window.innerHeight;
+    this.canvas.width = this.gameWidth;
+    this.canvas.height = this.gameHeight;
+    if (this.bgCanvas) {
+      this.bgCanvas.width = this.gameWidth;
+      this.bgCanvas.height = this.gameHeight;
+      if (this.starfield) {
+        this.starfield.resize(this.gameWidth, this.gameHeight);
+      }
+    }
+  }
+
   handleKeyDown(event) {
     if (event.key === 'ArrowLeft') {
       this.player.moveLeft();
@@ -428,7 +442,6 @@ function init() {
   }
 
   update() {
-    if (this.starfield) this.starfield.update();
     this.player.update(this.gameWidth);
     this.bullet.update();
 
@@ -487,7 +500,6 @@ function init() {
   }
 
   draw() {
-    if (this.starfield) this.starfield.draw();
     this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
     this.player.draw(this.context);
     this.bullet.draw(this.context);
@@ -497,6 +509,10 @@ function init() {
   }
 
   gameLoop() {
+    if (this.starfield) {
+      this.starfield.update();
+      this.starfield.draw();
+    }
     this.update();
     this.draw();
     if (!this.gameOver) {
@@ -614,7 +630,6 @@ function init() {
   }
 
   update() {
-    this.starfield.update();
     this.player.update(this.gameWidth);
     if (this.player.isMovingLeft || this.player.isMovingRight) {
       this.emitPlayerParticles();
@@ -655,7 +670,6 @@ function init() {
   }
 
   draw() {
-    this.starfield.draw();
     this.ctx.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
     this.ctx.save();
