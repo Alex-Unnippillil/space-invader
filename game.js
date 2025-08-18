@@ -511,6 +511,7 @@ function init() {
         showLeaderboard();
       }
 =======
+=======
     if (!this.gameOver) {
       requestAnimationFrame(() => this.gameLoop());
     } else {
@@ -715,6 +716,7 @@ function resetGame() {
   startGame();
 }
 =======
+=======
   hideLeaderboard();
   if (!currentGame) {
     currentGame = new Game();
@@ -757,6 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('startButton')?.addEventListener('click', startGame);
   document.getElementById('restartButton')?.addEventListener('click', resetGame);
 });
+=======
 =======
 
 
