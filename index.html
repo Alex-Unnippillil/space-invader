@@ -6,7 +6,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="hud">
@@ -15,6 +14,8 @@
         <div>Lives: <span id="lives">3</span></div>
         <div>Level: <span id="level">1</span></div>
     </div>
+
+=======
 =======
 =======
   <link rel="stylesheet" type="text/css" href="styles.css">
@@ -38,6 +39,7 @@
     </div>
 =======
 
+    <canvas id="bgCanvas" width="800" height="600"></canvas>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <div id="startOverlay" class="overlay show">
@@ -56,6 +58,7 @@
         <button id="playAgainButton">Play Again</button>
     </div>
 
+=======
     <button id="leaderboardButton">Leaderboard</button>
     <div id="leaderboardOverlay" class="overlay hidden">
         <div class="leaderboard-content">
@@ -66,23 +69,26 @@
     </div>
 
 =======
+
     <div id="mobileControls">
         <button id="leftButton">Left</button>
         <button id="shootButton">Shoot</button>
         <button id="rightButton">Right</button>
     </div>
-=======
-
-    <script type="module">
-      import Game from './game.js';
-      const game = new Game();
-      game.start();
-    </script>
 
     <div id="pauseOverlay">
         <h1>Paused</h1>
         <p>Press P to resume</p>
     </div>
+
+
+    <script src="starfield.js"></script>
+    <script type="module">
+        import Game from './game.js';
+        const game = new Game();
+        game.start();
+    </script>
+=======
 
 
 
