@@ -22,6 +22,7 @@ function init() {
   const enemyOffsetLeft = 50;
   const gameOverText = "Game Over";
   const scoreText = "Score: ";
+  const livesText = "Lives: ";
 
   // Player object
   const player = {
@@ -31,7 +32,8 @@ function init() {
     height: playerHeight,
     color: "#00ff00",
     isMovingLeft: false,
-    isMovingRight: false
+    isMovingRight: false,
+    lives: 3
   };
 
   // Bullet object
@@ -43,6 +45,10 @@ function init() {
     color: "#ff0000",
     isFired: false
   };
+
+  // Enemy bullets
+  const enemyBullets = [];
+  const enemyBulletSpeed = 3;
 
   // Enemy objects
   const enemies = [];
@@ -124,6 +130,17 @@ function init() {
       if (enemy.isAlive) {
         enemy.x += enemyDirection * enemySpeed;
 
+        // Randomly shoot bullets
+        if (Math.random() < 0.002) {
+          enemyBullets.push({
+            x: enemy.x + enemy.width / 2 - bulletWidth / 2,
+            y: enemy.y + enemy.height,
+            width: bulletWidth,
+            height: bulletHeight,
+            color: "#ffff00",
+          });
+        }
+
         // Check collision with player
         if (checkCollision(player, enemy)) {
           gameOver = true;
@@ -186,6 +203,21 @@ function init() {
       }
 
       updateEnemies();
+
+      // Update enemy bullets
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const eBullet = enemyBullets[i];
+        eBullet.y += enemyBulletSpeed;
+        if (checkCollision(eBullet, player)) {
+          enemyBullets.splice(i, 1);
+          player.lives--;
+          if (player.lives <= 0) {
+            gameOver = true;
+          }
+        } else if (eBullet.y > gameHeight) {
+          enemyBullets.splice(i, 1);
+        }
+      }
     }
 
     // Clear the canvas
@@ -201,6 +233,17 @@ function init() {
       context.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
     }
 
+    // Draw enemy bullets
+    enemyBullets.forEach((enemyBullet) => {
+      context.fillStyle = enemyBullet.color;
+      context.fillRect(
+        enemyBullet.x,
+        enemyBullet.y,
+        enemyBullet.width,
+        enemyBullet.height
+      );
+    });
+
     // Draw enemies
     enemies.forEach((enemy) => {
       if (enemy.isAlive) {
@@ -214,6 +257,7 @@ function init() {
     context.fillStyle = "#ffffff";
     context.font = "20px Arial";
     context.fillText(scoreText + score, 10, 30);
+    context.fillText(livesText + player.lives, 10, 55);
 
     // Draw game over or congratulatory message
     if (gameOver) {
