@@ -108,6 +108,13 @@ canvas {
     border-radius: 5px;
     text-align: center;
     color: var(--color-accent);
+
+  
+  font-family: 'Press Start 2P', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+=======
 }
 
 @keyframes slide-down {

@@ -10,6 +10,7 @@ function initGameUI(game) {
   const restartButton = document.getElementById('restartButton');
   const playAgainButton = document.getElementById('playAgainButton');
 =======
+=======
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
 
