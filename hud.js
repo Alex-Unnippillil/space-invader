@@ -12,6 +12,12 @@ function initHUD() {
   levelEl = document.getElementById('level');
   leaderboardOverlay = document.getElementById('leaderboardOverlay');
   leaderboardList = document.getElementById('leaderboardList');
+
+  updateLeaderboard();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+=======
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
   if (leaderboardButton)
