@@ -17,7 +17,6 @@ function initHUD() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-=======
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
   if (leaderboardButton)
