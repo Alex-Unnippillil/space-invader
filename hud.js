@@ -12,21 +12,16 @@ function initHUD() {
   levelEl = document.getElementById('level');
   leaderboardOverlay = document.getElementById('leaderboardOverlay');
   leaderboardList = document.getElementById('leaderboardList');
+
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
 
-  updateLeaderboard();
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const leaderboardButton = document.getElementById('leaderboardButton');
-  const closeLeaderboard = document.getElementById('closeLeaderboard');
-
-  if (leaderboardButton)
+  if (leaderboardButton) {
     leaderboardButton.addEventListener('click', showLeaderboard);
-  if (closeLeaderboard)
+  }
+  if (closeLeaderboard) {
     closeLeaderboard.addEventListener('click', hideLeaderboard);
-
+  }
 
   updateLeaderboard();
 }
@@ -72,3 +67,4 @@ export {
   showLeaderboard,
   hideLeaderboard,
 };
+
