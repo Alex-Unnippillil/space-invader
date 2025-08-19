@@ -6,9 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-=======
-  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="gameContainer">
@@ -58,8 +56,6 @@
     </div>
   </div>
 
-  <script src="starfield.js"></script>
-=======
   <script type="module">
     import Game from './game.js';
     import { initGameUI } from './ui.js';
@@ -67,13 +63,6 @@
     const game = new Game();
     document.addEventListener('DOMContentLoaded', () => initGameUI(game));
   </script>
-=======
-=======
-    const game = new Game();
-    document.addEventListener('DOMContentLoaded', () => initGameUI(game));
-  </script>
-=======
-  <script type="module" src="./game.js"></script>
 </body>
 </html>
 
