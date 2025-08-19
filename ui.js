@@ -11,6 +11,7 @@ function initGameUI(game) {
   const playAgainButton = document.getElementById('playAgainButton');
 =======
 =======
+=======
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
 

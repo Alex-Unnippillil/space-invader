@@ -2,6 +2,11 @@ import Player from './player.js';
 import Bullet from './bullet.js';
 import Enemy from './enemy.js';
 import Starfield from './starfield.js';
+import { updateHUD } from './hud.js';
+import { initGameUI } from './ui.js';
+
+function showOverlay(id) {
+=======
 import {
   updateHUD,
   saveScore,
@@ -67,6 +72,10 @@ export default class Game {
     const bgCanvas = document.getElementById('bgCanvas');
     this.starfield = bgCanvas ? new Starfield(bgCanvas) : null;
 =======
+    this.ctx = this.canvas.getContext('2d');
+    const bgCanvas = document.getElementById('bgCanvas');
+    this.starfield = bgCanvas ? new Starfield(bgCanvas) : null;
+=======
     this.canvas = document.getElementById('gameCanvas');
     this.context = this.canvas.getContext('2d');
 
@@ -126,6 +135,8 @@ export default class Game {
     this.gameWidth = this.canvas.width;
     this.gameHeight = this.canvas.height;
 
+    // Player
+=======
     // entities
     this.player = new Player(
       this.gameWidth / 2 - PLAYER_WIDTH / 2,
@@ -177,8 +188,10 @@ export default class Game {
       5,
       '#00ff00'
     );
-    this.bullet = new Bullet(5, 15, 7, '#ff0000');
 
+    // Bullet
+    this.bullet = new Bullet(5, 15, 7, '#ff0000');
+=======
     this.enemyRowCount = 5;
     this.enemyColumnCount = 10;
     this.enemyPadding = 10;
@@ -191,13 +204,17 @@ export default class Game {
     this.bullet = new Bullet(5, 15, 7, this.accentColor);
 
     // Enemy configuration
-    this.enemyCols = 10;
     this.enemyRows = 5;
+    this.enemyCols = 10;
     this.enemyWidth = 30;
     this.enemyHeight = 30;
     this.enemyPadding = 10;
     this.enemyOffsetTop = 50;
     this.enemyOffsetLeft = 50;
+    this.enemyDirection = 1;
+    this.enemySpeed = 1;
+    this.enemies = [];
+=======
 
     // Entities
     this.player = new Player(
@@ -240,6 +257,36 @@ export default class Game {
     this.highScore = parseInt(localStorage.getItem('highScore') || '0', 10);
     this.lives = 3;
     this.level = 1;
+    this.gameOver = false;
+
+    // Bindings
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.gameLoop = this.gameLoop.bind(this);
+
+    this.spawnEnemies();
+    updateHUD({
+      score: this.score,
+      highScore: this.highScore,
+      lives: this.lives,
+      level: this.level,
+    });
+  }
+
+  spawnEnemies() {
+    this.enemies = [];
+    for (let row = 0; row < this.enemyRows; row++) {
+      for (let col = 0; col < this.enemyCols; col++) {
+        const x =
+          col * (this.enemyWidth + this.enemyPadding) + this.enemyOffsetLeft;
+        const y =
+          row * (this.enemyHeight + this.enemyPadding) + this.enemyOffsetTop;
+        this.enemies.push(
+          new Enemy(x, y, this.enemyWidth, this.enemyHeight, '#00ffff')
+        );
+      }
+    }
+=======
 
     this.gameLoop = this.gameLoop.bind(this);
 =======
@@ -383,6 +430,20 @@ export default class Game {
   start() {
     hideOverlay('startOverlay');
     hideOverlay('gameOverOverlay');
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+    this.gameOver = false;
+    this.gameLoop();
+  }
+
+  reset() {
+    hideOverlay('gameOverOverlay');
+    this.score = 0;
+    this.lives = 3;
+    this.level = 1;
+    this.bullet.isFired = false;
+    this.player.x = this.gameWidth / 2 - this.player.width / 2;
+=======
 =======
     hideOverlay('winOverlay');
     hideOverlay('pauseOverlay');
@@ -446,6 +507,9 @@ export default class Game {
       lives: this.lives,
       level: this.level,
     });
+    this.gameOver = false;
+    this.gameLoop();
+=======
     this.start();
   }
 
@@ -499,6 +563,23 @@ export default class Game {
   handleKeyDown(e) {
     if (e.code === 'ArrowLeft') this.player.moveLeft();
     if (e.code === 'ArrowRight') this.player.moveRight();
+    if (e.code === 'Space' && !this.bullet.isFired) {
+      this.bullet.fire(this.player.x + this.player.width / 2, this.player.y);
+    }
+  }
+
+  handleKeyUp(e) {
+    if (e.code === 'ArrowLeft') this.player.stopLeft();
+    if (e.code === 'ArrowRight') this.player.stopRight();
+  }
+
+  update() {
+    if (this.starfield) {
+      this.starfield.update();
+      this.starfield.draw();
+    }
+
+=======
     if (e.code === 'Space') {
       if (!this.bullet.isFired) {
         this.bullet.fire(
@@ -760,6 +841,8 @@ export default class Game {
 
     // Enemy movement
     let hitEdge = false;
+    for (const enemy of this.enemies) {
+=======
     this.enemies.forEach((enemy) => {
       enemy.update(this.enemyDirection, this.enemySpeed);
 =======
@@ -774,9 +857,13 @@ export default class Game {
       this.enemyDirection *= -1;
       this.enemies.forEach((e) => e.moveDown(20));
       enemy.update(this.enemyDirection, this.enemySpeed);
-      if (enemy.x <= 0 || enemy.x + enemy.width >= this.gameWidth) {
+      if (enemy.x + enemy.width > this.gameWidth || enemy.x < 0) {
         hitEdge = true;
       }
+    }
+    if (hitEdge) {
+      this.enemyDirection *= -1;
+=======
     });
 
     // change direction on wall hit
@@ -831,6 +918,22 @@ export default class Game {
       this.enemies.forEach((enemy) => enemy.moveDown(10));
     }
 
+    for (const enemy of this.enemies) {
+      if (
+        enemy.isAlive &&
+        this.bullet.isFired &&
+        this.bullet.x < enemy.x + enemy.width &&
+        this.bullet.x + this.bullet.width > enemy.x &&
+        this.bullet.y < enemy.y + enemy.height &&
+        this.bullet.y + this.bullet.height > enemy.y
+      ) {
+        enemy.isAlive = false;
+        this.bullet.isFired = false;
+        this.score += 10;
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem('highScore', this.highScore);
+=======
     // Bullet collisions
     if (this.bullet.isFired) {
       this.enemies.forEach((enemy) => {
@@ -970,9 +1073,16 @@ export default class Game {
         } else {
           showOverlay('gameOverOverlay');
         }
-        saveScore('Player', this.score);
-        showLeaderboard();
+        updateHUD({
+          score: this.score,
+          highScore: this.highScore,
+          lives: this.lives,
+          level: this.level,
+        });
       }
+    }
+
+=======
     if (!this.gameOver) {
       requestAnimationFrame(() => this.gameLoop());
     } else {
@@ -1114,6 +1224,8 @@ let currentGame;
     this.ctx.clearRect(0, 0, this.gameWidth, this.gameHeight);
     this.player.draw(this.ctx);
     this.bullet.draw(this.ctx);
+    for (const enemy of this.enemies) enemy.draw(this.ctx);
+=======
 =======
     for (const enemy of this.enemies) {
       enemy.draw(this.ctx);
@@ -1126,6 +1238,7 @@ let currentGame;
   }
 
   gameLoop() {
+    if (this.gameOver) return;
     this.update();
     this.draw();
     if (!this.isPaused && !this.gameOver) {
@@ -1133,6 +1246,9 @@ let currentGame;
     }
   }
 
+const game = new Game();
+document.addEventListener('DOMContentLoaded', () => initGameUI(game));
+=======
   checkCollision(a, b) {
     return (
       a.x < b.x + b.width &&
