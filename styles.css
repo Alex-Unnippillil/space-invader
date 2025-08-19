@@ -2,6 +2,8 @@
     --color-primary: #00ff00;
     --color-accent: #ff0000;
     --color-background: #000000;
+    --color-button-bg: var(--color-primary);
+    --color-button-hover: #00cc00;
 }
 
 body {
@@ -9,6 +11,7 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: var(--color-background);
+    font-family: 'Press Start 2P', monospace;
 }
 
 #gameContainer {
@@ -23,6 +26,8 @@ canvas {
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
     background-color: var(--color-background);
 }
 
@@ -34,6 +39,7 @@ canvas {
     z-index: 1;
     width: 100%;
     height: 100%;
+=======
 }
 
 /* Overlay */
@@ -47,13 +53,14 @@ canvas {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 20px;
+    padding: 20px;
     background-color: rgba(0, 0, 0, 0.7);
     color: var(--color-accent);
     text-align: center;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease;
-    font-family: 'Press Start 2P', monospace;
     z-index: 10;
 }
 
@@ -74,19 +81,28 @@ canvas {
     animation: slide-down 0.5s forwards;
 }
 
-.overlay button {
-    margin-top: 20px;
+.overlay button,
+#hud button,
+#mobileControls button {
     padding: 10px 20px;
-    font-size: 18px;
-    background-color: var(--color-primary);
+    font-size: 16px;
+    background-color: var(--color-button-bg);
+    color: var(--color-background);
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-family: inherit;
     transition: background-color 0.3s ease;
 }
 
-.overlay button:hover {
-    background-color: #00cc00;
+.overlay button:hover,
+.overlay button:focus,
+#hud button:hover,
+#hud button:focus,
+#mobileControls button:hover,
+#mobileControls button:focus {
+    background-color: var(--color-button-hover);
+    outline: none;
 }
 
 .leaderboard-content {
@@ -95,7 +111,13 @@ canvas {
     border-radius: 5px;
     text-align: center;
     color: var(--color-accent);
-    font-family: 'Press Start 2P', monospace;
+
+  
+  font-family: 'Press Start 2P', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+=======
 }
 
 @keyframes slide-down {
@@ -110,9 +132,14 @@ canvas {
 /* HUD */
 #hud {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    font-family: 'Press Start 2P', monospace;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    align-items: center;
     font-size: 14px;
     line-height: 1.5;
     color: var(--color-primary);
@@ -153,11 +180,6 @@ canvas {
 #mobileControls button {
     width: 60px;
     height: 60px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
 }
 
 @media (min-width: 768px) {
