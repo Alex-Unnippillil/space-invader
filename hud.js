@@ -1,3 +1,5 @@
+const API_BASE = 'http://localhost:3000';
+
 let scoreEl;
 let highScoreEl;
 let livesEl;
@@ -12,21 +14,13 @@ function initHUD() {
   levelEl = document.getElementById('level');
   leaderboardOverlay = document.getElementById('leaderboardOverlay');
   leaderboardList = document.getElementById('leaderboardList');
+
   const leaderboardButton = document.getElementById('leaderboardButton');
   const closeLeaderboard = document.getElementById('closeLeaderboard');
-
-  updateLeaderboard();
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const leaderboardButton = document.getElementById('leaderboardButton');
-  const closeLeaderboard = document.getElementById('closeLeaderboard');
-
   if (leaderboardButton)
     leaderboardButton.addEventListener('click', showLeaderboard);
   if (closeLeaderboard)
     closeLeaderboard.addEventListener('click', hideLeaderboard);
-
 
   updateLeaderboard();
 }
@@ -38,22 +32,36 @@ function updateHUD({ score, highScore, lives, level }) {
   if (levelEl) levelEl.textContent = level;
 }
 
-function saveScore(name, score) {
-  const data = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-  data.push({ name, score });
-  data.sort((a, b) => b.score - a.score);
-  localStorage.setItem('leaderboard', JSON.stringify(data.slice(0, 5)));
+async function saveScore(name, score) {
+  try {
+    await fetch(`${API_BASE}/scores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, score }),
+    });
+  } catch (err) {
+    console.error('Failed to save score', err);
+  }
 }
 
-function updateLeaderboard() {
+async function updateLeaderboard() {
   if (!leaderboardList) return;
   leaderboardList.innerHTML = '';
-  const data = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-  data.slice(0, 5).forEach((entry) => {
+  try {
+    const res = await fetch(`${API_BASE}/leaderboard`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    data.forEach((entry) => {
+      const li = document.createElement('li');
+      li.textContent = `${entry.name}: ${entry.score}`;
+      leaderboardList.appendChild(li);
+    });
+  } catch (err) {
     const li = document.createElement('li');
-    li.textContent = `${entry.name}: ${entry.score}`;
+    li.textContent = 'Unable to load leaderboard';
     leaderboardList.appendChild(li);
-  });
+    console.error('Failed to load leaderboard', err);
+  }
 }
 
 function showLeaderboard() {
