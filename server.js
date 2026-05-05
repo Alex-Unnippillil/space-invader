@@ -27,8 +27,7 @@ app.post('/scores', (req, res) => {
     return res.status(400).json({ error: 'Invalid payload' });
   }
 
-  const stmt = db.prepare('INSERT INTO scores (name, score) VALUES (?, ?)');
-  stmt.run(name, score, function (err) {
+  db.run('INSERT INTO scores (name, score) VALUES (?, ?)', [name, score], function (err) {
     if (err) {
       console.error('DB insert error', err);
       return res.status(500).json({ error: 'Failed to save score' });
@@ -54,12 +53,39 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
-  db.close();
-  process.exit();
-});
+let isShuttingDown = false;
+function shutdown(signal) {
+  if (isShuttingDown) {
+    console.log(`Shutdown already in progress (received ${signal}).`);
+    return;
+  }
+  isShuttingDown = true;
+  console.log(`Received ${signal}. Starting graceful shutdown...`);
+
+  server.close((serverErr) => {
+    if (serverErr) {
+      console.error('HTTP server close error during shutdown', serverErr);
+    } else {
+      console.log('HTTP server closed.');
+    }
+
+    db.close((dbErr) => {
+      if (dbErr) {
+        console.error('Database close error during shutdown', dbErr);
+        process.exit(1);
+        return;
+      }
+      console.log('Database connection closed.');
+      console.log('Graceful shutdown complete. Exiting process.');
+      process.exit(serverErr ? 1 : 0);
+    });
+  });
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
