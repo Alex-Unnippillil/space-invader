@@ -22,6 +22,8 @@ export const ENEMY = {
   SPEED_INCREMENT: 0.2,
 };
 
+export const MAX_LEVEL = 3;
+
 export function getLevelConfig(level) {
   return {
     playerSpeed: PLAYER.SPEED,

@@ -25,11 +25,13 @@ function initGameUI(game) {
     restartButton.addEventListener('click', () => {
       game.reset();
       hideOverlay('gameOverOverlay');
+      hideOverlay('winOverlay');
     });
   }
   if (playAgainButton) {
     playAgainButton.addEventListener('click', () => {
       game.reset();
+      hideOverlay('gameOverOverlay');
       hideOverlay('winOverlay');
     });
   }
