@@ -20,12 +20,55 @@ db.serialize(() => {
   );
 });
 
+const NAME_MIN_LENGTH = 1;
+const NAME_MAX_LENGTH = 20;
+const SCORE_MIN = 0;
+const SCORE_MAX = 1_000_000;
+
+function validateScorePayload(payload) {
+  const fieldErrors = {};
+  const result = {};
+  const { name, score } = payload ?? {};
+
+  if (typeof name !== 'string') {
+    fieldErrors.name = 'Name must be a string.';
+  } else {
+    const normalizedName = name.replace(/[\x00-\x1F\x7F]/g, '').trim();
+    if (normalizedName.length < NAME_MIN_LENGTH || normalizedName.length > NAME_MAX_LENGTH) {
+      fieldErrors.name = `Name length must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters.`;
+    } else {
+      result.name = normalizedName;
+    }
+  }
+
+  if (!Number.isInteger(score)) {
+    fieldErrors.score = 'Score must be an integer.';
+  } else if (score < SCORE_MIN || score > SCORE_MAX) {
+    fieldErrors.score = `Score must be between ${SCORE_MIN} and ${SCORE_MAX}.`;
+  } else {
+    result.score = score;
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return {
+      ok: false,
+      error: {
+        message: 'Validation failed',
+        fields: fieldErrors
+      }
+    };
+  }
+
+  return { ok: true, value: result };
+}
+
 // Route to submit a score
 app.post('/scores', (req, res) => {
-  const { name, score } = req.body;
-  if (typeof name !== 'string' || typeof score !== 'number') {
-    return res.status(400).json({ error: 'Invalid payload' });
+  const validation = validateScorePayload(req.body);
+  if (!validation.ok) {
+    return res.status(400).json(validation.error);
   }
+  const { name, score } = validation.value;
 
   const stmt = db.prepare('INSERT INTO scores (name, score) VALUES (?, ?)');
   stmt.run(name, score, function (err) {
