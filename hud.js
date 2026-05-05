@@ -15,13 +15,6 @@ function initHUD() {
   leaderboardOverlay = document.getElementById('leaderboardOverlay');
   leaderboardList = document.getElementById('leaderboardList');
 
-  const leaderboardButton = document.getElementById('leaderboardButton');
-  const closeLeaderboard = document.getElementById('closeLeaderboard');
-  if (leaderboardButton)
-    leaderboardButton.addEventListener('click', showLeaderboard);
-  if (closeLeaderboard)
-    closeLeaderboard.addEventListener('click', hideLeaderboard);
-
   updateLeaderboard();
 }
 
