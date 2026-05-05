@@ -8,7 +8,13 @@ import {
   showLeaderboard,
   hideLeaderboard,
 } from './hud.js';
-import { PLAYER, BULLET, ENEMY, getLevelConfig } from './config.js';
+import {
+  PLAYER,
+  BULLET,
+  ENEMY,
+  MAX_LEVEL,
+  getLevelConfig,
+} from './config.js';
 
 function showOverlay(id) {
   const el = document.getElementById(id);
@@ -19,6 +25,8 @@ function hideOverlay(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
 }
+
+export { hideOverlay };
 
 export default class Game {
   constructor() {
@@ -61,10 +69,12 @@ export default class Game {
       this.lives = 3;
       this.isPaused = false;
       this.gameOver = false;
+      this.gameWon = false;
 
     // overlays
     this.startOverlay = document.getElementById('startOverlay');
     this.gameOverOverlay = document.getElementById('gameOverOverlay');
+    this.winOverlay = document.getElementById('winOverlay');
     this.pauseOverlay = document.getElementById('pauseOverlay');
 
     // bind methods
@@ -99,10 +109,12 @@ export default class Game {
   start() {
     hideOverlay('startOverlay');
     hideOverlay('gameOverOverlay');
+    hideOverlay('winOverlay');
     hideOverlay('pauseOverlay');
     hideLeaderboard();
 
     this.gameOver = false;
+    this.gameWon = false;
     this.isPaused = false;
     this.score = 0;
     this.lives = 3;
@@ -114,6 +126,8 @@ export default class Game {
   }
 
   reset() {
+    this.gameOver = false;
+    this.gameWon = false;
     this.start();
   }
 
@@ -151,7 +165,7 @@ export default class Game {
   }
 
   togglePause() {
-    if (this.gameOver) return;
+    if (this.gameOver || this.gameWon) return;
     this.isPaused = !this.isPaused;
     if (this.pauseOverlay)
       this.pauseOverlay.classList.toggle('show', this.isPaused);
@@ -164,7 +178,7 @@ export default class Game {
       this.starfield.draw();
     }
 
-    if (this.isPaused || this.gameOver) return;
+    if (this.isPaused || this.gameOver || this.gameWon) return;
 
     this.player.update(this.gameWidth);
     this.bullet.update();
@@ -199,6 +213,10 @@ export default class Game {
 
     // next level if all dead
     if (this.enemies.length === 0) {
+      if (this.level >= MAX_LEVEL) {
+        this.endWin();
+        return;
+      }
       this.level++;
       const levelConfig = getLevelConfig(this.level);
       this.enemySpeed = levelConfig.enemySpeed;
@@ -240,7 +258,7 @@ export default class Game {
   gameLoop() {
     this.update();
     this.draw();
-    if (!this.isPaused && !this.gameOver) {
+    if (!this.isPaused && !this.gameOver && !this.gameWon) {
       requestAnimationFrame(this.gameLoop);
     }
   }
@@ -254,8 +272,7 @@ export default class Game {
     );
   }
 
-  endGame() {
-    this.gameOver = true;
+  finalizeScore() {
     this.highScore = Math.max(this.highScore, this.score);
     localStorage.setItem('highScore', this.highScore);
     updateHUD({
@@ -264,9 +281,19 @@ export default class Game {
       lives: this.lives,
       level: this.level,
     });
-    showOverlay('gameOverOverlay');
     saveScore('Player', this.score);
     showLeaderboard();
   }
-}
 
+  endGame() {
+    this.gameOver = true;
+    this.finalizeScore();
+    showOverlay('gameOverOverlay');
+  }
+
+  endWin() {
+    this.gameWon = true;
+    this.finalizeScore();
+    showOverlay('winOverlay');
+  }
+}
